@@ -31,7 +31,7 @@ completed
 
 and stores exactly one of them in `std::variant`.
 
-Data belongs to the states where it has meaning. For example, the choice state owns the hold mask and completed-roll count; the forced-score state cannot represent a reroll permission flag at all.
+Data belongs to the states where it has meaning. Roll counts are encoded with state-specific enum types, so a normal caller cannot construct a choice state with zero or three completed rolls. The forced-score state cannot represent a reroll permission flag at all.
 
 The command/application boundary still accepts commands that may be invalid for the current state, so `apply(...)` returns `std::expected<turn_state, transition_error>`. Internal state representation and external command validity are separate concerns.
 
