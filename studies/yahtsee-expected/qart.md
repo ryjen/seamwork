@@ -123,3 +123,25 @@ The current boundary has three useful properties:
 - cross-study coupling remains explicit at the composition root.
 
 Revisit shared Yahtsee domain values only after the second practical consumer in #47 supplies additional evidence.
+
+
+## Follow-up after the second consumer (#51)
+
+#46's decision to keep conversion/revalidation was correct with only one consumer: the alternatives either weakened the scoring invariant or created an unsupported shared dependency.
+
+#47/#50 changed the evidence. A second independent consumer reproduced the same domain conversion.
+
+#51 therefore promotes the **validated Yahtsee face/hand value**, not an unchecked scoring path.
+
+The resulting dependency direction is:
+
+```text
+shared Yahtsee hand
+      ^       ^
+      |       |
+randomness  scoring
+```
+
+Raw integer input still uses `make_hand(...)` and `std::expected`. A hand already produced by randomness is already the same validated domain type and can be scored directly.
+
+This is evidence-driven evolution rather than a reversal of #46: the decision changed only after the consumer count and dependency evidence changed.
