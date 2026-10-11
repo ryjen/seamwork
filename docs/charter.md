@@ -10,7 +10,7 @@ The reusable code is evidence of successful refinement, not the primary product.
 
 ## Origin
 
-Seamwork began as `libcoda`, a collection of C++ utilities created while learning modern C++ and experimenting with interfaces that felt cleaner than the alternatives available at the time. Those libraries were used by real consumers, including a command-line Yahtzee application.
+Seamwork began as `libcoda`, a collection of C++ utilities created while learning modern C++ and experimenting with interfaces that felt cleaner than the alternatives available at the time. Those libraries were used by real consumers, including a command-line Yahtsee application.
 
 The re-charter keeps that original interest in interface quality while replacing the generic "utility library" goal with an explicit design and architecture laboratory.
 
