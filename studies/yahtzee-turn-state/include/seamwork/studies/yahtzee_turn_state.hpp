@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <type_traits>
 #include <variant>
 
 namespace seamwork::studies::yahtzee_turn {
