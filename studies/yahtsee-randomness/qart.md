@@ -134,3 +134,20 @@ The selected `initial_roll` and `reroll` operations are templates. For this tiny
 A later composed consumer (#40/#41) showed that storing the hold mask inside the randomness `hand` duplicated state already owned by the turn lifecycle. The refined `reroll` therefore borrows `std::span<const bool, 5>` instead. The fixed extent keeps the five-die contract explicit; borrowing keeps lifetime/cost visible; and the randomness study does not depend on the turn-state implementation type.
 
 A benchmark is not currently justified: none of the alternatives is being selected on a performance claim. If runtime or compile-time cost becomes a reason to change the design, add measurement before making that argument.
+
+
+## Domain-value promotion (#51)
+
+The randomness study originally owned its own `face` and `hand` values.
+
+After two maintained consumers independently needed to adapt that hand into the scoring study's separate validated hand, #51 promoted the stable Yahtsee value contract into `seamwork::yahtsee`.
+
+Only the values moved:
+
+- six-value `face`;
+- fixed five-face `hand`;
+- raw validation.
+
+The random-source seam, reroll behavior, runtime-interface/type-erasure alternatives, and URBG adapter remain study-local.
+
+This preserves the original dependency-inversion conclusion while making the domain value independent of any one behavior study.
