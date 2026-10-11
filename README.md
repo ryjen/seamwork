@@ -41,7 +41,7 @@ The existing architecture work remains useful as migration guidance:
 - [Dependency policy](docs/architecture/0004-dependency-policy.md)
 - [ADR 0002: transition toward a single Seamwork repository](docs/adr/0002-seamwork-topology.md)
 
-Legacy `libcoda` components are migration inputs and archival evidence, not automatically endorsed Seamwork components.
+Legacy `libcoda` components are archived design and security evidence, not supported Seamwork components. Their pinned source revisions are recorded in the [migration record](docs/migration/seamwork-rebrand.md).
 
 ## C++23 baseline
 
@@ -51,7 +51,7 @@ The rule is:
 
 > use the simplest mechanism that preserves the desired semantics, and use C++23 where it makes the interface or architecture meaningfully better.
 
-Legacy components retain their historical language requirements only inside the explicit compatibility build; changing them without a design purpose would be syntax-only modernization.
+Historical components retain their original language requirements in their independent repositories and Git history. They are not built or shipped by Seamwork.
 
 ## Practical consumers
 
@@ -103,16 +103,9 @@ ctest --preset dev
 
 Required CI runs this Seamwork-native path with GCC and Clang through the checked-in flake.
 
-The historical libcoda aggregate remains available explicitly:
+The legacy aggregate and its former submodules are no longer part of the Seamwork checkout. For historical reproductions, use the original repositories and pinned revisions in the [migration record](docs/migration/seamwork-rebrand.md).
 
-```bash
-git submodule update --init --recursive
-nix develop .#legacy
-cmake --preset legacy-dev
-cmake --build --preset legacy-dev
-```
-
-See [`docs/build.md`](docs/build.md) for build boundaries and options.
+See [`docs/build.md`](docs/build.md) for the active build contract.
 
 ## Lineage
 

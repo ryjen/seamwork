@@ -2,7 +2,7 @@
 
 ## Status
 
-Active modernization baseline. Component documents refine this model for format, database, and networking code.
+Historical libcoda security evidence, not an assertion that the archived implementations are currently maintained or hardened. Component documents refine this model for format, database, and networking code.
 
 ## Scope
 

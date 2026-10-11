@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for the Seamwork re-charter.
+Accepted and implemented for the primary repository by #34; independent historical repositories remain for provenance.
 
 This ADR supersedes ADR 0001 as the target topology decision. ADR 0001 remains useful historical context for why the `libcoda` modernization originally retained component repositories.
 
@@ -18,7 +18,7 @@ Under that model, repository boundaries should represent real independent lifecy
 
 Seamwork will move toward a single primary repository.
 
-The existing submodules remain temporarily while their code is inventoried and classified. They are migration inputs, not the intended long-term organization.
+The existing submodules were retained during inventory/classification. With their dispositions and immutable pins recorded, the active Seamwork repository retires those gitlinks. Historical code remains available in prior commits and independent repositories.
 
 A legacy component should remain an independent repository only if there is concrete evidence that it needs an independent:
 
