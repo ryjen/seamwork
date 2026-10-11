@@ -8,6 +8,7 @@ add_subdirectory(authority-transport)
 add_subdirectory(native-size-boundary)
 add_subdirectory(percent-decoding)
 add_subdirectory(structured-delayed-work)
+add_subdirectory(spsc-queue)
 
 # Each C++23 study supplies an executable check, independent of optional CTest
 # registration, so CI can validate the implemented contract explicitly.
@@ -24,4 +25,5 @@ add_dependencies(
     seamwork_native_size_boundary_check
     seamwork_percent_decoding_check
     seamwork_structured_delayed_work_check
+    seamwork_spsc_queue_check
 )
