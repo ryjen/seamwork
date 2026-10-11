@@ -130,6 +130,7 @@ int main()
     } catch (const std::exception& error) {
         std::cerr << "percent-decoding study failed: " << error.what() << '\n';
         return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
