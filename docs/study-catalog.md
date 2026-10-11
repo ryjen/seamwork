@@ -18,6 +18,7 @@ It is an evidence map, not a maturity score. A selected technique is preferred o
 | [Native size boundary](../studies/native-size-boundary/README.md) | `size_t` C++ buffers crossed narrower native integer APIs | How should representability and partial native results remain visible? | `std::span`, `std::in_range`, `std::expected` | Validate before narrowing; preserve partial counts; no hidden retry/chunking | Study only | `INT_MAX` boundary tests, native failure/partial write/zero-length tests |
 | [Percent decoding](../studies/percent-decoding/README.md) | Legacy decoder performed unchecked `%HH` lookahead and accepted malformed hex | How should malformed external encoding fail without out-of-range access? | Bounds-first parsing, `std::expected`, `std::bit_cast`, explicit policy enum | Validate range before lookahead; reject invalid hex; make `+` interpretation explicit | Study only; no URI/parser framework | Truncated/invalid/mixed-case/NUL/high-byte tests, exception and lenient alternatives |
 | [Structured delayed work](../studies/structured-delayed-work/README.md) | Detached delayed threads had no owner, cancellation, join, or typed duration | How should one delayed operation express lifetime and cooperative cancellation? | `std::jthread`, `std::stop_token`, `std::stop_callback`, `std::chrono`, constrained callbacks | One move-only owner; stop-aware delay; destructor joins; callback is explicitly `noexcept` | Study only; no scheduler/executor/thread framework | Cancellation/destruction/move/cooperative-stop tests without wall-clock sleeps |
+| [Bounded SPSC queue](../studies/spsc-queue/README.md) | Two realtime DSP consumers independently repeated the same fixed-capacity sequence-counter queue | Should one correctness-sensitive SPSC contract become a narrow generic value type? | Fixed `std::array<std::optional<T>>` storage, atomics, acquire/release publication, unsigned modular sequence arithmetic | Generic only across payload/capacity; fail-on-full, optional pop, no blocking/allocation; strict SPSC precondition | Study only; external adoption/promotion deliberately deferred | Two consumer-shaped payloads, no-allocation test, move-only payload, concurrent FIFO stress, bounded `uint8_t` wraparound qualification |
 | [Yahtsee domain component](../components/yahtsee-domain/README.md) | Two consumers repeated the same five-face domain conversion | When has a shared value type earned promotion? | Strong enum/value type, fixed-size aggregate, `std::expected` raw validation | Promote only stable Yahtsee face + five-face hand facts | **Promoted component** | Two independent consumers reproduced the adapter before promotion |
 | [Composed Yahtsee turn](../examples/yahtsee-turn/README.md) | Study-local abstractions needed real composition pressure | Which seams remain clear when randomness, turn lifecycle, and scoring are used together? | Composition root, explicit adapters, typed state | Turn state became single hold authority; first consumer deliberately deferred hand promotion | Consumer/evidence, not component | Exposed duplicate hold state and first hand-conversion occurrence |
 | [Yahtsee scorecard](../examples/yahtsee-scorecard/README.md) | One consumer was insufficient evidence for shared domain promotion | Does integration friction repeat in an independent workflow? | Reuse of study boundaries across multiple turns/categories | Repeated hand adapter supplied second-consumer evidence for narrow domain promotion | Consumer/evidence, not framework | Two-turn deterministic scorecard and repeated adapter evidence |
@@ -46,7 +47,7 @@ These have useful evidence but not enough repetition to generalize broadly.
 | Invalid-state modeling | Yahtsee typed turn state | One compact state machine; no evidence for a general state-machine abstraction |
 | Dependency inversion / polymorphism | Yahtsee randomness seam | Strong comparison in one small domain; not a universal preference for concepts/templates |
 | Native/C boundary adaptation | Native size boundary plus historical network evidence | Integer representation is covered; broader native handle/error models remain dependency-specific |
-| Concurrency / cancellation | Structured delayed work | One owned delayed operation; no evidence for executors, thread pools, or schedulers |
+| Concurrency / cancellation | Structured delayed work plus bounded SPSC queue | Evidence now covers one owned cancellable task and one non-blocking producer/consumer handoff; still no evidence for executors, thread pools, schedulers, MPMC, or general channels |
 | Standard-library replacement | Formatting, `std::variant`, `std::jthread`-era redesign | Strong examples, but replacement remains problem-specific |
 | Practical promotion evidence | Yahtsee domain | Only one component has completed the two-consumer promotion path |
 | Practical consumer diversity | Yahtsee turn + scorecard | Both are in the same domain; non-Yahtsee studies are currently focused examples rather than multi-feature applications |
@@ -95,9 +96,11 @@ Add measurement only when a future recommendation depends on cost—for example,
 
 ### 3. Multi-consumer evidence outside Yahtsee
 
-The Yahtsee domain component demonstrates the promotion process well, but the project has no second domain where independent consumers forced the same abstraction.
+The bounded-SPSC study is the first Seamwork study triggered by repeated interface/correctness pressure in a maintained external domain: `ryjen/dsp`.
 
-Do not manufacture one. Treat this as a gap to observe, not a task to create.
+That improves consumer diversity, but it does not yet justify a Seamwork component. Both motivating SPSC consumers still live in the same repository and realtime-DSP lifecycle.
+
+Keep the promotion bar unchanged: observe whether another independent domain repeats the same contract before centralizing it as a reusable component.
 
 ### 4. Result-bearing asynchronous work
 
