@@ -13,7 +13,7 @@ The Seamwork study narrows the requirement to the semantic operation the domain 
 ## Constraints
 
 - Five dice per hand.
-- Held dice are not rerolled.
+- Held dice are not rerolled, but hold decisions belong to the caller/turn lifecycle rather than the random-value object.
 - Tests must be able to provide an exact deterministic sequence.
 - The domain should not own or hide the lifetime of the random source.
 - A normal game should be able to use a standard C++ random engine.
@@ -130,5 +130,7 @@ If a later application requires runtime-selected random providers or a stable AB
 ## Trade-off accepted
 
 The selected `initial_roll` and `reroll` operations are templates. For this tiny domain seam, that compile-time coupling is accepted in exchange for direct semantics and trivial deterministic sources.
+
+A later composed consumer (#40/#41) showed that storing the hold mask inside the randomness `hand` duplicated state already owned by the turn lifecycle. The refined `reroll` therefore borrows `std::span<const bool, 5>` instead. The fixed extent keeps the five-die contract explicit; borrowing keeps lifetime/cost visible; and the randomness study does not depend on the turn-state implementation type.
 
 A benchmark is not currently justified: none of the alternatives is being selected on a performance claim. If runtime or compile-time cost becomes a reason to change the design, add measurement before making that argument.
