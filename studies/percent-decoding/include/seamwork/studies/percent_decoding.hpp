@@ -2,6 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <bit>
+#include <exception>
 #include <expected>
 #include <string>
 #include <string_view>
@@ -22,6 +24,28 @@ struct decode_error {
     decode_error_code code;
     std::size_t index{};
     char value{};
+};
+
+class decode_exception final : public std::exception
+{
+public:
+    explicit decode_exception(decode_error error) noexcept
+        : error_(error)
+    {
+    }
+
+    [[nodiscard]] auto error() const noexcept -> const decode_error&
+    {
+        return error_;
+    }
+
+    [[nodiscard]] auto what() const noexcept -> const char* override
+    {
+        return "malformed percent encoding";
+    }
+
+private:
+    decode_error error_;
 };
 
 namespace detail {
@@ -82,8 +106,8 @@ namespace detail {
                 }};
             }
 
-            const auto decoded = static_cast<unsigned>((high << 4) | low);
-            output.push_back(static_cast<char>(decoded));
+            const auto decoded = static_cast<unsigned char>((high << 4) | low);
+            output.push_back(std::bit_cast<char>(decoded));
             index += 3;
             continue;
         }
@@ -109,7 +133,7 @@ namespace alternatives {
 {
     const auto decoded = decode_percent(input, plus);
     if (!decoded) {
-        throw decode_error{decoded.error()};
+        throw decode_exception{decoded.error()};
     }
     return *decoded;
 }
@@ -125,7 +149,8 @@ namespace alternatives {
             const auto high = detail::hex_value(input[index + 1]);
             const auto low = detail::hex_value(input[index + 2]);
             if (high >= 0 && low >= 0) {
-                output.push_back(static_cast<char>((high << 4) | low));
+                const auto decoded = static_cast<unsigned char>((high << 4) | low);
+                output.push_back(std::bit_cast<char>(decoded));
                 index += 3;
                 continue;
             }
