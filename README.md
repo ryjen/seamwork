@@ -83,6 +83,8 @@ Promotion is optional. Demonstrating why an abstraction should not exist is a va
 - [Authority vs transport identity](studies/authority-transport/README.md) — keeps caller authentication identity distinct from resolved routing addresses so resolver output cannot silently replace the authority being verified.
 - [Native size boundary](studies/native-size-boundary/README.md) — checks `size_t -> int` representability before native byte I/O and keeps partial-write/retry policy explicit.
 
+- [Percent decoding](studies/percent-decoding/README.md) — replaces unchecked `%HH` lookahead with bounds-first ASCII hex validation, typed malformed-input errors, and explicit `+` policy.
+
 Studies are evidence and design work first. They are not automatically promoted into reusable Seamwork components.
 
 ## Promoted components
