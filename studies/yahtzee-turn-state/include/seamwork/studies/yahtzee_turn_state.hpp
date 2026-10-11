@@ -106,50 +106,64 @@ using transition_result = std::expected<turn_state, transition_error>;
     return next;
 }
 
+template <class... Visitors>
+struct overloaded : Visitors... {
+    using Visitors::operator()...;
+};
+
+template <class... Visitors>
+overloaded(Visitors...) -> overloaded<Visitors...>;
+
+[[nodiscard]] constexpr auto invalid_transition() -> transition_result
+{
+    return std::unexpected{transition_error{
+        .code = transition_error_code::invalid_action,
+    }};
+}
+
 [[nodiscard]] constexpr auto apply(const turn_state& current, const command& requested)
     -> transition_result
 {
     return std::visit(
-        [&](const auto& state) -> transition_result {
-            using state_type = std::remove_cvref_t<decltype(state)>;
-
-            return std::visit(
-                [&](const auto& requested_command) -> transition_result {
-                    using command_type = std::remove_cvref_t<decltype(requested_command)>;
-
-                    if constexpr (std::same_as<state_type, awaiting_roll> &&
-                                  std::same_as<command_type, turn_action>) {
-                        if (requested_command == turn_action::roll_completed) {
-                            return roll_completed(state);
-                        }
-                    } else if constexpr (std::same_as<state_type, choosing_dice> &&
-                                         std::same_as<command_type, turn_action>) {
-                        if (requested_command == turn_action::reroll) {
-                            return reroll(state);
-                        }
-                        if (requested_command == turn_action::score) {
-                            return score(state);
-                        }
-                    } else if constexpr (std::same_as<state_type, choosing_dice> &&
-                                         std::same_as<command_type, toggle_hold>) {
-                        auto next = with_toggled_hold(state, requested_command.index);
-                        if (!next) {
-                            return std::unexpected{next.error()};
-                        }
-                        return turn_state{*next};
-                    } else if constexpr (std::same_as<state_type, must_score> &&
-                                         std::same_as<command_type, turn_action>) {
-                        if (requested_command == turn_action::score) {
-                            return score(state);
-                        }
+        overloaded{
+            [&](const awaiting_roll& state) -> transition_result {
+                const auto* action = std::get_if<turn_action>(&requested);
+                if (action != nullptr && *action == turn_action::roll_completed) {
+                    return roll_completed(state);
+                }
+                return invalid_transition();
+            },
+            [&](const choosing_dice& state) -> transition_result {
+                if (const auto* toggle = std::get_if<toggle_hold>(&requested); toggle != nullptr) {
+                    auto next = with_toggled_hold(state, toggle->index);
+                    if (!next) {
+                        return std::unexpected{next.error()};
                     }
+                    return turn_state{*next};
+                }
 
-                    return std::unexpected{transition_error{
-                        .code = transition_error_code::invalid_action,
-                    }};
-                },
-                requested
-            );
+                const auto* action = std::get_if<turn_action>(&requested);
+                if (action == nullptr) {
+                    return invalid_transition();
+                }
+                if (*action == turn_action::reroll) {
+                    return reroll(state);
+                }
+                if (*action == turn_action::score) {
+                    return score(state);
+                }
+                return invalid_transition();
+            },
+            [&](const must_score& state) -> transition_result {
+                const auto* action = std::get_if<turn_action>(&requested);
+                if (action != nullptr && *action == turn_action::score) {
+                    return score(state);
+                }
+                return invalid_transition();
+            },
+            [&](const completed&) -> transition_result {
+                return invalid_transition();
+            },
         },
         current
     );
