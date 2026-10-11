@@ -126,6 +126,8 @@ ctest --preset dev
 
 Required CI runs this Seamwork-native path with GCC and Clang through the checked-in flake.
 
+Fuzz qualification is opt-in and path-scoped. The borrowed-frame and percent-decoding trust boundaries have dedicated Clang/libFuzzer + ASan/UBSan harnesses under [`fuzz/`](fuzz/README.md); unrelated pull requests do not run them.
+
 The legacy aggregate and its former submodules are no longer part of the Seamwork checkout. For historical reproductions, use the original repositories and pinned revisions in the [migration record](docs/migration/seamwork-rebrand.md).
 
 See [`docs/build.md`](docs/build.md) for the active build contract.
