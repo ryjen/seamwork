@@ -68,19 +68,20 @@ static_assert(!std::move_constructible<sw::queue<int, 4>>);
 
 void test_fifo_full_empty_and_refill()
 {
-    sw::queue<observation, 3> queue;
+    sw::queue<observation, 4> queue;
 
     require(!queue.try_pop(), "new queue should be empty");
 
     require(queue.try_push(observation{.frame = 1, .peak = 101}), "push 1");
     require(queue.try_push(observation{.frame = 2, .peak = 102}), "push 2");
     require(queue.try_push(observation{.frame = 3, .peak = 103}), "push 3");
+    require(queue.try_push(observation{.frame = 4, .peak = 104}), "push 4");
     require(
-        !queue.try_push(observation{.frame = 4, .peak = 104}),
+        !queue.try_push(observation{.frame = 5, .peak = 105}),
         "push should fail without overwriting when full"
     );
 
-    for (std::uint64_t expected = 1; expected <= 3; ++expected) {
+    for (std::uint64_t expected = 1; expected <= 4; ++expected) {
         const auto item = queue.try_pop();
         require(item.has_value(), "full queue should drain");
         require(item->frame == expected, "queue should preserve FIFO frame order");
@@ -92,9 +93,9 @@ void test_fifo_full_empty_and_refill()
 
     require(!queue.try_pop(), "drained queue should be empty");
 
-    require(queue.try_push(observation{.frame = 5, .peak = 105}), "refill push");
+    require(queue.try_push(observation{.frame = 6, .peak = 106}), "refill push");
     const auto refilled = queue.try_pop();
-    require(refilled && refilled->frame == 5, "queue should be reusable after drain");
+    require(refilled && refilled->frame == 6, "queue should be reusable after drain");
 }
 
 void test_second_consumer_shape()
@@ -152,19 +153,22 @@ void test_queue_operations_allocate_nothing()
 
 void test_sequence_wraparound_with_small_counter()
 {
-    sw::detail::basic_spsc_queue<int, 3, std::uint8_t> queue;
+    sw::detail::basic_spsc_queue<int, 4, std::uint8_t> queue;
 
     for (int cycle = 0; cycle < 200; ++cycle) {
-        require(queue.try_push(cycle * 3), "wrap push 0");
-        require(queue.try_push(cycle * 3 + 1), "wrap push 1");
-        require(queue.try_push(cycle * 3 + 2), "wrap push 2");
+        for (int offset = 0; offset < 4; ++offset) {
+            require(
+                queue.try_push(cycle * 4 + offset),
+                "wrap push should succeed"
+            );
+        }
         require(!queue.try_push(-1), "wrap full check");
 
-        for (int offset = 0; offset < 3; ++offset) {
+        for (int offset = 0; offset < 4; ++offset) {
             const auto value = queue.try_pop();
             require(value.has_value(), "wrap pop should succeed");
             require(
-                *value == cycle * 3 + offset,
+                *value == cycle * 4 + offset,
                 "wraparound should preserve FIFO order"
             );
         }
