@@ -22,13 +22,13 @@ The deterministic example:
 
 ## Integration findings
 
-### Duplicate hold state
+### Hold ownership refinement
 
-The randomness study's `hand` owns a hold mask because it needs to know which dice to reroll.
+The first version of this example demonstrated duplicate hold state: both the randomness `hand` and the turn-state model stored the same decisions.
 
-The turn-state study also owns a hold mask because holding is part of the legal turn lifecycle.
+Issue #42 uses that consumer evidence to refine the seam without extracting a shared component. Turn state is now the single authority for held dice. The randomness operation accepts a borrowed fixed-extent hold view only while rerolling.
 
-The composed example must currently update both explicitly. That is genuine duplication and a possible future refinement target, but one consumer is not enough evidence to extract a shared component yet.
+This removes synchronization work while keeping the studies independent: the randomness study knows only `std::span<const bool, 5>`, not the turn-state implementation type.
 
 ### Duplicate hand representations
 
