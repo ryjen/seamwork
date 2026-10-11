@@ -4,6 +4,7 @@ target_include_directories(seamwork_yahtsee_expected
     INTERFACE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
+target_link_libraries(seamwork_yahtsee_expected INTERFACE seamwork_yahtsee_domain)
 
 add_executable(seamwork_yahtsee_expected_example example.cpp)
 target_link_libraries(seamwork_yahtsee_expected_example PRIVATE seamwork_yahtsee_expected)

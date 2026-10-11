@@ -3,7 +3,6 @@
 #include <array>
 #include <cstddef>
 #include <expected>
-#include <span>
 #include <stdexcept>
 #include <variant>
 
@@ -19,8 +18,7 @@ namespace turn = seamwork::studies::yahtsee_turn;
 
 using script_error = std::variant<
     turn::transition_error,
-    scoring::category_error,
-    scoring::hand_error>;
+    scoring::category_error>;
 
 struct scripted_result {
     std::array<unsigned, randomness::dice_per_hand> faces;
@@ -51,18 +49,6 @@ private:
     std::array<randomness::face, 8> values_;
     std::size_t next_{};
 };
-
-[[nodiscard]] constexpr auto to_scoring_values(const randomness::hand& hand)
-    -> std::array<int, randomness::dice_per_hand>
-{
-    std::array<int, randomness::dice_per_hand> values{};
-
-    for (std::size_t index = 0; index < values.size(); ++index) {
-        values[index] = static_cast<int>(randomness::value(hand[index]));
-    }
-
-    return values;
-}
 
 [[nodiscard]] inline auto run_scripted_turn()
     -> std::expected<scripted_result, script_error>
@@ -128,13 +114,7 @@ private:
         return std::unexpected{script_error{category.error()}};
     }
 
-    const auto raw_values = to_scoring_values(dice);
-    const auto scoring_hand = scoring::make_hand(std::span<const int>{raw_values});
-    if (!scoring_hand) {
-        return std::unexpected{script_error{scoring_hand.error()}};
-    }
-
-    const auto final_score = scoring::score(*category, *scoring_hand);
+    const auto final_score = scoring::score(*category, dice);
 
     transition = turn::apply(state, turn::turn_action::score);
     if (!transition) {

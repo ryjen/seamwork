@@ -20,9 +20,9 @@ The deterministic scorecard plays:
 
 ## Consumer evidence
 
-### The scoring adapter repeats
+### Repeated adapter produced promotion evidence
 
-This consumer independently needs the same boundary seen in `examples/yahtsee-turn`:
+The first version of this consumer independently repeated the same adapter already present in `examples/yahtsee-turn`:
 
 ```text
 randomness::hand
@@ -31,9 +31,9 @@ randomness::hand
   -> scoring::hand
 ```
 
-#46 deliberately retained that boundary because bypassing validation would either weaken the scoring invariant or couple the scoring study directly to the randomness study.
+That repetition was the evidence required by #51. The shared Yahtsee face/hand contract is now promoted, so this consumer passes the typed hand directly from randomness to scoring.
 
-Now that the conversion has appeared in **two maintained consumers**, a shared domain value has stronger evidence than it had after the first example. That does not automatically justify promotion, but it is now a legitimate candidate for a focused follow-up decision.
+The raw scoring-input path still validates separately; the promotion removed duplicated representation rather than weakening the boundary.
 
 ### Turn-state ownership still composes cleanly
 
@@ -43,19 +43,19 @@ Hold decisions remain owned by the turn-state model. The randomness operation bo
 
 A couple of local helper functions are enough to avoid repetitive error plumbing inside this example. No service locator, factory hierarchy, DI container, or generic state-machine framework is needed.
 
-## Promotion evidence
+## Promotion result
 
-Candidate worth evaluating next:
+The two maintained consumers justified exactly one shared component:
 
-- a **Yahtsee-specific five-face validated domain value** shared by randomness/scoring consumers.
+- a **Yahtsee-specific six-face/five-value domain contract**.
 
-Not yet justified:
+Still not justified:
 
 - generic dice/hand component;
 - generic scorecard framework;
 - generic application/composition framework.
 
-The follow-up should compare a small shared Yahtsee domain contract against leaving the duplicated conversion in place. Promotion is still optional.
+The promoted contract is intentionally smaller than the studies that depend on it.
 
 ## Build
 

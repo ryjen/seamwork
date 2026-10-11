@@ -81,6 +81,12 @@ Promotion is optional. Demonstrating why an abstraction should not exist is a va
 
 Studies are evidence and design work first. They are not automatically promoted into reusable Seamwork components.
 
+## Promoted components
+
+- [Yahtsee domain](components/yahtsee-domain/README.md) — the first promoted component, containing only the stable six-face/five-value domain contract and raw validation demonstrated by two independent consumers.
+
+Promotion remains exceptional. Random generation, scoring, hold state, turn lifecycle, and scorecards remain outside the component.
+
 ## Integrated examples
 
 - [Composed Yahtsee turn](examples/yahtsee-turn/README.md) — combines the randomness, typed turn-state, and scoring/error-boundary studies in one deterministic consumer and records the integration friction instead of hiding it behind new abstractions.

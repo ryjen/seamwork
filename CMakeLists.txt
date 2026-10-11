@@ -10,6 +10,8 @@ if(SEAMWORK_BUILD_TESTS)
     enable_testing()
 endif()
 
+add_subdirectory(components)
+
 if(SEAMWORK_BUILD_STUDIES)
     add_subdirectory(studies)
 endif()

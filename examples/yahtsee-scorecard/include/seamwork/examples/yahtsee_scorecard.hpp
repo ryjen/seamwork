@@ -3,7 +3,6 @@
 #include <array>
 #include <cstddef>
 #include <expected>
-#include <span>
 #include <stdexcept>
 #include <string_view>
 #include <variant>
@@ -20,8 +19,7 @@ namespace turn = seamwork::studies::yahtsee_turn;
 
 using script_error = std::variant<
     turn::transition_error,
-    scoring::category_error,
-    scoring::hand_error>;
+    scoring::category_error>;
 
 struct scorecard_result {
     unsigned yahtsee_score{};
@@ -52,18 +50,6 @@ private:
     std::size_t next_{};
 };
 
-[[nodiscard]] constexpr auto to_scoring_values(const randomness::hand& hand)
-    -> std::array<int, randomness::dice_per_hand>
-{
-    std::array<int, randomness::dice_per_hand> values{};
-
-    for (std::size_t index = 0; index < values.size(); ++index) {
-        values[index] = static_cast<int>(randomness::value(hand[index]));
-    }
-
-    return values;
-}
-
 [[nodiscard]] inline auto apply_command(turn::turn_state& state, const turn::command& command)
     -> std::expected<void, script_error>
 {
@@ -84,15 +70,7 @@ private:
         return std::unexpected{script_error{category.error()}};
     }
 
-    // #46 deliberately keeps this explicit validation boundary. The second
-    // consumer repeats it so promotion decisions are based on real evidence.
-    const auto raw_values = to_scoring_values(dice);
-    const auto scoring_hand = scoring::make_hand(std::span<const int>{raw_values});
-    if (!scoring_hand) {
-        return std::unexpected{script_error{scoring_hand.error()}};
-    }
-
-    return scoring::score(*category, *scoring_hand);
+    return scoring::score(*category, dice);
 }
 
 [[nodiscard]] inline auto play_yahtsee_turn()

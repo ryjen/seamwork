@@ -58,15 +58,15 @@ Costs:
 The study therefore recommends `std::expected` selectively, not as a project-wide default return type.
 
 
-## Consumer-driven follow-up: trusted Yahtsee hands (#46)
+## Consumer-driven follow-up at #46: trusted Yahtsee hands
 
-The composed Yahtsee consumer already has a typed randomness hand whose five faces are guaranteed to be in the domain range. To score it, the composition root currently converts those faces to five integers and calls `make_hand(...)`, which validates them again.
+At the time of #46, the composed Yahtsee consumer already had a typed randomness hand whose five faces were guaranteed to be in the domain range. To score it, the composition root converted those faces to five integers and called `make_hand(...)`, validating them again.
 
 That looks redundant, so #46 compared ways to remove it.
 
 ### A. Keep conversion + validation
 
-The current path is:
+The #46 path was:
 
 ```text
 randomness::hand
@@ -123,3 +123,25 @@ The current boundary has three useful properties:
 - cross-study coupling remains explicit at the composition root.
 
 Revisit shared Yahtsee domain values only after the second practical consumer in #47 supplies additional evidence.
+
+
+## Follow-up after the second consumer (#51)
+
+#46's decision to keep conversion/revalidation was correct with only one consumer: the alternatives either weakened the scoring invariant or created an unsupported shared dependency.
+
+#47/#50 changed the evidence. A second independent consumer reproduced the same domain conversion.
+
+#51 therefore promotes the **validated Yahtsee face/hand value**, not an unchecked scoring path.
+
+The resulting dependency direction is:
+
+```text
+shared Yahtsee hand
+      ^       ^
+      |       |
+randomness  scoring
+```
+
+Raw integer input still uses `make_hand(...)` and `std::expected`. A hand already produced by randomness is already the same validated domain type and can be scored directly.
+
+This is evidence-driven evolution rather than a reversal of #46: the decision changed only after the consumer count and dependency evidence changed.

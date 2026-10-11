@@ -2,7 +2,7 @@
 
 ## Active boundary
 
-Seamwork is a self-contained C++23 interface/architecture study repository. Its default configuration does not need recursive submodules, external database servers, legacy utility libraries, or build-time fetched dependencies.
+Seamwork is a self-contained C++23 interface/architecture study repository with selectively promoted components. Its default configuration does not need recursive submodules, external database servers, legacy utility libraries, or build-time fetched dependencies.
 
 The historical libcoda aggregate has been retired from this repository's current tree. Its previous source, CMake integration and Git submodule pointers remain recoverable from Git history; the independently maintained historical component repositories remain available. For pinned revisions and license/provenance notes, see [the migration record](migration/seamwork-rebrand.md).
 
@@ -28,7 +28,9 @@ cmake --build --preset release
 ctest --preset release
 ```
 
-`SEAMWORK_BUILD_STUDIES`, `SEAMWORK_BUILD_EXAMPLES`, and `SEAMWORK_BUILD_TESTS` default to `ON`. Examples are maintained consumers of study interfaces, so `SEAMWORK_BUILD_EXAMPLES=ON` requires studies to be enabled. Active targets declare `cxx_std_23` and own their include and link requirements.
+Promoted components are part of the active build unconditionally. `SEAMWORK_BUILD_STUDIES`, `SEAMWORK_BUILD_EXAMPLES`, and `SEAMWORK_BUILD_TESTS` default to `ON`. Examples are maintained consumers of study interfaces, so `SEAMWORK_BUILD_EXAMPLES=ON` requires studies to be enabled. Active targets declare `cxx_std_23` and own their include and link requirements.
+
+The first promoted component is the Yahtsee domain value contract under `components/yahtsee-domain`. Component tests are registered with CTest when `SEAMWORK_BUILD_TESTS=ON`.
 
 ## CI and qualification
 

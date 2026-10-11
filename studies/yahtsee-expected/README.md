@@ -21,6 +21,14 @@ raw category text --------> expected<category, category_error> --+
 raw integer dice ---------> expected<hand, hand_error> -----------+--> score(...) -> unsigned
 ```
 
+## Domain-value promotion
+
+The validated five-face value is now owned by the promoted `seamwork::yahtsee` domain component (#51).
+
+This study still owns the **error-handling question**: raw integer input is validated into that shared domain value with `std::expected`, while scoring a validated hand remains total.
+
+The promotion removes duplicate hand representations; it does not remove the raw-input validation boundary.
+
 ## Scope
 
 The scoring slice includes ones through sixes, chance, and Yahtsee. That is enough to exercise parsing, validation, and scoring contracts without turning the study into a complete game implementation.
@@ -45,6 +53,6 @@ The example target is `seamwork_yahtsee_expected_example`.
 
 ## Promotion status
 
-**Study only.**
+The `std::expected` **error-handling study remains study-only**.
 
-This does not introduce a Seamwork-wide result type or error framework.
+Only the stable Yahtsee face/hand domain value was promoted. Seamwork still has no project-wide result/error framework.
