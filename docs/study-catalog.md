@@ -72,18 +72,18 @@ They should become studies only when a believable consumer creates a concrete in
 
 ## Evidence gaps
 
-### 1. Pure-parser fuzz qualification — highest priority
+### 1. Pure-parser fuzz qualification — addressed by #71
 
-Seamwork now has two deterministic, transport-independent parsers at untrusted-input boundaries:
+Seamwork has two deterministic, transport-independent parsers at untrusted-input boundaries:
 
 - [borrowed frame](../studies/borrowed-frame/README.md);
 - [percent decoding](../studies/percent-decoding/README.md).
 
-Both were explicitly shaped to be bounded and fuzz-friendly. The retained network threat model also recommends fuzzing pure parsers before live network fuzzing.
+#71 adds opt-in Clang/libFuzzer harnesses with ASan/UBSan, small seed corpora, and a bounded path-scoped smoke workflow.
 
-The missing evidence is adversarial breadth: deterministic unit cases prove known boundaries, but they do not explore arbitrary byte/string combinations.
+The fuzzers are intentionally outside normal CTest and the required GCC/Clang matrix. They qualify arbitrary inputs only when the fuzz surface or either parser changes, while longer local fuzz sessions remain opt-in.
 
-**Recommendation:** next, add bounded fuzz harnesses for these two parser surfaces without introducing live networking or making fuzzing part of the normal GCC/Clang unit-test path.
+This closes the main active adversarial-testing gap without introducing live networking or a generic fuzz framework.
 
 ### 2. Performance / allocation evidence — intentionally sparse
 
@@ -118,7 +118,7 @@ Useful testing evidence already includes:
 - GCC + Clang qualification;
 - prior historical fuzzing evidence in archived formatter work.
 
-The main missing active technique is fuzz/property-style qualification of the new pure parsers.
+Active evidence methods now also include path-scoped libFuzzer qualification with ASan/UBSan for the two pure parser trust boundaries.
 
 ## Promotion discipline
 
@@ -136,14 +136,13 @@ This is intentionally stricter than deduplicating code whenever two files look s
 
 ## Next priority
 
-**Qualify the borrowed-frame and percent-decoding trust boundaries with fuzzing.**
+After #71, **do not manufacture another abstraction study merely to keep the queue busy**.
 
-Why this outranks another design study:
+The strongest remaining gaps are intentionally conditional:
 
-1. the parser interfaces already exist and are deterministic;
-2. their inputs are explicitly untrusted;
-3. historical security guidance already calls for pure-parser fuzzing;
-4. fuzzing tests existing claims instead of creating another abstraction;
-5. it broadens Seamwork's evidence methods, which is currently a clearer gap than C++ feature coverage.
+- add performance measurement only when a recommendation makes a real cost claim;
+- revisit asynchronous result channels only when a consumer needs result-bearing work;
+- consider another promotion only after independent consumers repeat the same stable seam;
+- continue parser fuzz qualification when those trust-boundary surfaces change.
 
-After that work, prefer waiting for a real consumer pressure before opening another abstraction study.
+The next design study should therefore begin with concrete consumer pressure or a newly demonstrated defect, not an uncovered C++ feature.
