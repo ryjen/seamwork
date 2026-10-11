@@ -87,13 +87,10 @@ private:
     }
     state = *transition;
 
-    // Integration evidence: the randomness study and turn-state study both
-    // currently own a hold mask. The application keeps them synchronized
-    // explicitly rather than introducing a shared abstraction prematurely.
+    // Turn state is the single authority for hold decisions. Randomness
+    // borrows the fixed-size selection only for the reroll operation.
     constexpr std::array hold_indices{std::size_t{1}, std::size_t{4}};
     for (const auto index : hold_indices) {
-        dice = dice.with_hold(index);
-
         transition = turn::apply(state, turn::toggle_hold{index});
         if (!transition) {
             return std::unexpected{script_error{transition.error()}};
@@ -107,7 +104,18 @@ private:
     }
     state = *transition;
 
-    dice = randomness::reroll(dice, source);
+    const auto* awaiting = std::get_if<turn::awaiting_roll>(&state);
+    if (awaiting == nullptr) {
+        return std::unexpected{script_error{turn::transition_error{
+            .code = turn::transition_error_code::invalid_action,
+        }}};
+    }
+
+    dice = randomness::reroll(
+        dice,
+        randomness::hold_view{awaiting->held()},
+        source
+    );
 
     transition = turn::apply(state, turn::turn_action::roll_completed);
     if (!transition) {
