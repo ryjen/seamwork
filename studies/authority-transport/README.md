@@ -16,11 +16,13 @@ transport_address
 and compose them into a value-oriented plan:
 
 ```cpp
-secure_connection_plan {
-    requested_authority authority;
-    resolved_endpoint transport;
-}
+secure_connection_plan(
+    requested_authority,
+    resolved_endpoint
+)
 ```
+
+The plan owns both values and exposes only const accessors after construction, so resolution adds routing information without mutating the preserved authority.
 
 The fake transport boundary accepts only a `resolved_endpoint`.
 
