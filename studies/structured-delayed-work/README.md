@@ -31,6 +31,8 @@ The owner:
 
 No thread is detached.
 
+This does not make arbitrary captured references safe. If a callback captures external state by reference, that state must still outlive the `delayed_task`. The improvement is that the worker has an owner whose destruction joins it, so normal scope ordering can enforce that relationship.
+
 ## Interruptible delay
 
 A plain `sleep_for` would make destruction wait for the original deadline even after cancellation.
