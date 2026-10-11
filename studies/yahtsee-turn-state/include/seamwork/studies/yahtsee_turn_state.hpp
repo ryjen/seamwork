@@ -7,9 +7,11 @@
 #include <utility>
 #include <variant>
 
+#include <seamwork/yahtsee/domain.hpp>
+
 namespace seamwork::studies::yahtsee_turn {
 
-inline constexpr std::size_t dice_per_hand = 5;
+inline constexpr std::size_t dice_per_hand = seamwork::yahtsee::dice_per_hand;
 
 using hold_mask = std::array<bool, dice_per_hand>;
 
