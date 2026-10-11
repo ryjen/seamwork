@@ -129,3 +129,56 @@ Copy only when retention is a real caller requirement.
 Do not generalize this result into a networking or protocol framework. The useful lesson is narrower:
 
 > make borrowing the default when ownership is not required, and make the copy visible when lifetime must extend.
+
+
+## Lifetime refinement after #54 (#56)
+
+The original selected signature was:
+
+```cpp
+parse(std::span<const std::byte> input)
+```
+
+That made borrowing visible, but `std::span<const T>` can be implicitly constructed from some temporary owning contiguous ranges. A temporary container can therefore be destroyed at the end of the call expression while the returned `frame_view` still refers to its storage.
+
+### Documentation-only
+
+Keeping the span signature and documenting the precondition is simple, but a common accidental dangling call remains well-formed.
+
+### Borrowed-range public boundary
+
+Selected.
+
+The public parser is now constrained by:
+
+```cpp
+contiguous_range
+&& sized_range
+&& borrowed_range
+&& byte value type
+```
+
+This produces useful behavior:
+
+- lvalue `std::array<std::byte, N>`: accepted;
+- lvalue `std::vector<std::byte>`: accepted;
+- `std::span<const std::byte>`: accepted, including a temporary span because span itself is a borrowed range;
+- rvalue owning `std::array` / `std::vector`: rejected at compile time.
+
+The underlying parser still operates on a span internally; the range constraint belongs at the public construction boundary.
+
+### Offsets instead of views
+
+Returning offsets could avoid a borrowed result but would make every caller coordinate the original buffer with offset/length pairs. That recreates paired integer invariants and weakens ergonomics for immediate processing.
+
+### Always-owned result
+
+Returning a vector would eliminate result lifetime coupling but impose a copy on every successful parse. The existing explicit `retain(...)` operation already lets callers opt into that cost when needed.
+
+## Residual lifetime responsibility
+
+The refinement does **not** make arbitrary borrowing provably safe.
+
+A caller can still create a span that already dangles or can mutate/reallocate an owning lvalue after parsing. The API prevents a high-value class of accidental temporary-owner misuse while leaving normal C++ borrowing rules visible.
+
+That is the intended level of guarantee for this study.
