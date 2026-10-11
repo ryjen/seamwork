@@ -83,7 +83,7 @@ Studies are evidence and design work first. They are not automatically promoted 
 
 The existing security work remains part of the evidence base:
 
-- [Project threat model and release-hardening checklist](docs/security/threat-model.md)
+- [Historical aggregate threat model and release-hardening checklist](docs/security/threat-model.md)
 - [Legacy `libcoda-net` threat model](docs/security/libcoda-net.md)
 - [Legacy `libcoda-db` threat model](docs/security/libcoda-db.md)
 - [Legacy `libcoda-format` threat model](docs/security/libcoda-format.md)
