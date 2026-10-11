@@ -2,7 +2,7 @@
 
 ## Status
 
-Core re-charter complete. The primary repository's legacy build and submodule cutover is prepared under #34; GitHub archive settings for independent historical repositories are tracked separately.
+Core re-charter complete. PR #35 implements the primary repository's legacy build and submodule cutover under #34; GitHub archive settings for independent historical repositories are tracked separately.
 
 This document tracks the transition from `libcoda` to Seamwork. The transition intentionally separates project purpose, code disposition, C++23 migration, and repository renaming so history is preserved and legacy code is not promoted accidentally.
 
