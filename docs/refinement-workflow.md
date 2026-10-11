@@ -98,7 +98,8 @@ A study may move into `components/` when:
 - ownership/lifetime/error behavior is documented;
 - relevant tests exist;
 - dependencies are appropriate;
-- the abstraction is narrower or clearer than simply using an existing mature library.
+- the abstraction is narrower or clearer than simply using an existing mature library;
+- normally, at least two real consumers need it, or a compelling independent contract/lifecycle justifies promotion with one.
 
 Promotion is not required for a successful study.
 
