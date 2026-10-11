@@ -80,6 +80,7 @@ Promotion is optional. Demonstrating why an abstraction should not exist is a va
 - [Standard formatting](studies/standard-format/README.md) — revisits the archived formatter and tests whether direct `std::format`/`std::format_to` can delete the project-specific abstraction entirely.
 - [Borrowed frame parsing](studies/borrowed-frame/README.md) — isolates a historical network byte-boundary problem and compares raw pointer/length, ownership, and borrowed `std::span` semantics with bounded parsing.
 - [Transaction lifetime](studies/transaction-lifetime/README.md) — revisits archived DB lifecycle semantics and compares copyable commit-on-destruction, a move-only explicit-commit guard, and C++23 `std::scope_exit`.
+- [Authority vs transport identity](studies/authority-transport/README.md) — keeps caller authentication identity distinct from resolved routing addresses so resolver output cannot silently replace the authority being verified.
 
 Studies are evidence and design work first. They are not automatically promoted into reusable Seamwork components.
 
