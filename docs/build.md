@@ -45,3 +45,27 @@ Legacy aggregate CI and `SEAMWORK_BUILD_LEGACY` are intentionally retired. To in
 ## Dependency/security posture
 
 New studies should avoid silent network fetches, make ownership and error semantics explicit, and establish deterministic checks before promotion. See the [dependency policy](architecture/0004-dependency-policy.md), [charter](charter.md), and [refinement workflow](refinement-workflow.md).
+
+
+## Fuzz qualification
+
+Pure trust-boundary parser fuzzers are opt-in and are not part of the normal GCC/Clang study matrix.
+
+Configure them with Clang:
+
+```bash
+CC=clang CXX=clang++ cmake -S . -B build/fuzz -G Ninja \
+  -DSEAMWORK_BUILD_FUZZERS=ON \
+  -DSEAMWORK_BUILD_TESTS=OFF \
+  -DSEAMWORK_BUILD_EXAMPLES=OFF
+
+cmake --build build/fuzz --target \
+  seamwork_fuzz_borrowed_frame \
+  seamwork_fuzz_percent_decoding
+```
+
+The targets use libFuzzer with AddressSanitizer and UndefinedBehaviorSanitizer.
+
+The separate `.github/workflows/fuzz.yml` workflow is intentionally path-scoped. It runs on changes to the fuzz surface or the two parser studies and can also be triggered manually. Unrelated pull requests do not pay the fuzzing cost.
+
+See [`fuzz/README.md`](../fuzz/README.md) for harness invariants and local usage.
