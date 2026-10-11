@@ -33,6 +33,7 @@ The value type must be nothrow move-constructible and nothrow destructible becau
 - exactly one producer thread;
 - exactly one consumer thread;
 - fixed queue-owned storage;
+- power-of-two capacity;
 - no blocking;
 - no overwrite when full;
 - `try_push` returns `false` when full;
@@ -75,9 +76,19 @@ Unsigned sequence subtraction is deliberate:
 static_cast<Sequence>(write - read)
 ```
 
-The outstanding distance can never exceed `Capacity`, and the template requires capacity to be smaller than the sequence modulus.
+The outstanding distance can never exceed `Capacity`.
 
-Tests instantiate the internal implementation with `std::uint8_t` and repeatedly fill/drain it so both counters wrap many times without requiring billions of operations.
+The slot mapping also exposes an additional invariant:
+
+```cpp
+slot = sequence % Capacity
+```
+
+When the unsigned sequence counter wraps, that mapping remains continuous only when `Capacity` divides the counter modulus. For binary unsigned counters, requiring a power-of-two capacity makes that relationship explicit.
+
+The first study implementation incorrectly allowed arbitrary capacities. A `uint8_t` wraparound test with capacity 3 failed in CI and exposed the assumption. The selected interface now requires a power-of-two capacity.
+
+Tests instantiate the internal implementation with `std::uint8_t` and capacity 4, then repeatedly fill/drain it so both counters wrap many times without requiring billions of operations.
 
 The supported public alias uses `std::uint32_t`.
 
