@@ -1,11 +1,12 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <scope>
+#include <span>
 #include <utility>
-#include <vector>
 
 namespace seamwork::studies::transaction_lifetime {
 
@@ -46,7 +47,7 @@ public:
 
     [[nodiscard]] auto begin() noexcept -> std::expected<void, transaction_error>
     {
-        events_.push_back(operation::begin);
+        record_event(operation::begin);
 
         if (active_) {
             return std::unexpected{transaction_error{
@@ -66,7 +67,7 @@ public:
 
     [[nodiscard]] auto commit() noexcept -> std::expected<void, transaction_error>
     {
-        events_.push_back(operation::commit);
+        record_event(operation::commit);
 
         if (!active_) {
             return std::unexpected{transaction_error{
@@ -86,7 +87,7 @@ public:
 
     [[nodiscard]] auto rollback() noexcept -> std::expected<void, transaction_error>
     {
-        events_.push_back(operation::rollback);
+        record_event(operation::rollback);
 
         if (!active_) {
             return std::unexpected{transaction_error{
@@ -106,7 +107,9 @@ public:
 
     void record_unobserved_cleanup_failure(transaction_error error) noexcept
     {
-        cleanup_failures_.push_back(error);
+        if (cleanup_failure_count_ < cleanup_failures_.size()) {
+            cleanup_failures_[cleanup_failure_count_++] = error;
+        }
     }
 
     [[nodiscard]] auto active() const noexcept -> bool
@@ -114,24 +117,36 @@ public:
         return active_;
     }
 
-    [[nodiscard]] auto events() const noexcept -> const std::vector<operation>&
+    [[nodiscard]] auto events() const noexcept -> std::span<const operation>
     {
-        return events_;
+        return std::span<const operation>{events_.data(), event_count_};
     }
 
     [[nodiscard]] auto cleanup_failures() const noexcept
-        -> const std::vector<transaction_error>&
+        -> std::span<const transaction_error>
     {
-        return cleanup_failures_;
+        return std::span<const transaction_error>{
+            cleanup_failures_.data(),
+            cleanup_failure_count_,
+        };
     }
 
 private:
+    void record_event(operation event) noexcept
+    {
+        if (event_count_ < events_.size()) {
+            events_[event_count_++] = event;
+        }
+    }
+
     bool active_{};
     bool fail_begin_{};
     bool fail_commit_{};
     bool fail_rollback_{};
-    std::vector<operation> events_;
-    std::vector<transaction_error> cleanup_failures_;
+    std::array<operation, 16> events_{};
+    std::size_t event_count_{};
+    std::array<transaction_error, 4> cleanup_failures_{};
+    std::size_t cleanup_failure_count_{};
 };
 
 class transaction_guard
