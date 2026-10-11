@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <functional>
 #include <random>
-#include <stdexcept>
+#include <span>
 #include <utility>
 
 namespace seamwork::studies::yahtzee {
@@ -29,13 +29,13 @@ enum class face : std::uint8_t {
 }
 
 using face_values = std::array<face, dice_per_hand>;
-using hold_mask = std::array<bool, dice_per_hand>;
+using hold_view = std::span<const bool, dice_per_hand>;
 
 class hand
 {
 public:
-    constexpr explicit hand(face_values values, hold_mask held = {})
-        : values_(values), held_(held)
+    constexpr explicit hand(face_values values) noexcept
+        : values_(values)
     {
     }
 
@@ -44,35 +44,13 @@ public:
         return values_;
     }
 
-    [[nodiscard]] constexpr auto held() const noexcept -> const hold_mask&
-    {
-        return held_;
-    }
-
     [[nodiscard]] constexpr auto operator[](std::size_t index) const -> face
     {
         return values_.at(index);
     }
 
-    [[nodiscard]] constexpr auto is_held(std::size_t index) const -> bool
-    {
-        return held_.at(index);
-    }
-
-    [[nodiscard]] auto with_hold(std::size_t index, bool should_hold = true) const -> hand
-    {
-        if (index >= dice_per_hand) {
-            throw std::out_of_range{"Yahtzee die index is outside the hand"};
-        }
-
-        auto next_held = held_;
-        next_held[index] = should_hold;
-        return hand{values_, next_held};
-    }
-
 private:
     face_values values_;
-    hold_mask held_;
 };
 
 template <class Source>
@@ -91,17 +69,17 @@ template <face_source Source>
 }
 
 template <face_source Source>
-[[nodiscard]] auto reroll(const hand& current, Source& source) -> hand
+[[nodiscard]] auto reroll(const hand& current, hold_view held, Source& source) -> hand
 {
     auto values = current.values();
 
     for (std::size_t index = 0; index < values.size(); ++index) {
-        if (!current.is_held(index)) {
+        if (!held[index]) {
             values[index] = std::invoke(source);
         }
     }
 
-    return hand{values, current.held()};
+    return hand{values};
 }
 
 template <std::uniform_random_bit_generator Engine>
@@ -141,17 +119,21 @@ public:
     return hand{values};
 }
 
-[[nodiscard]] inline auto reroll(const hand& current, virtual_face_source& source) -> hand
+[[nodiscard]] inline auto reroll(
+    const hand& current,
+    hold_view held,
+    virtual_face_source& source
+) -> hand
 {
     auto values = current.values();
 
     for (std::size_t index = 0; index < values.size(); ++index) {
-        if (!current.is_held(index)) {
+        if (!held[index]) {
             values[index] = source.next();
         }
     }
 
-    return hand{values, current.held()};
+    return hand{values};
 }
 
 using erased_face_source = std::function<face()>;
@@ -165,17 +147,21 @@ using erased_face_source = std::function<face()>;
     return hand{values};
 }
 
-[[nodiscard]] inline auto reroll(const hand& current, erased_face_source& source) -> hand
+[[nodiscard]] inline auto reroll(
+    const hand& current,
+    hold_view held,
+    erased_face_source& source
+) -> hand
 {
     auto values = current.values();
 
     for (std::size_t index = 0; index < values.size(); ++index) {
-        if (!current.is_held(index)) {
+        if (!held[index]) {
             values[index] = source();
         }
     }
 
-    return hand{values, current.held()};
+    return hand{values};
 }
 
 template <std::uniform_random_bit_generator Engine>
@@ -192,18 +178,18 @@ template <std::uniform_random_bit_generator Engine>
 }
 
 template <std::uniform_random_bit_generator Engine>
-[[nodiscard]] auto reroll_urbg(const hand& current, Engine& engine) -> hand
+[[nodiscard]] auto reroll_urbg(const hand& current, hold_view held, Engine& engine) -> hand
 {
     std::uniform_int_distribution<unsigned> distribution{1, sides_per_die};
     auto values = current.values();
 
     for (std::size_t index = 0; index < values.size(); ++index) {
-        if (!current.is_held(index)) {
+        if (!held[index]) {
             values[index] = static_cast<face>(distribution(engine));
         }
     }
 
-    return hand{values, current.held()};
+    return hand{values};
 }
 
 } // namespace alternatives

@@ -79,15 +79,14 @@ void test_semantic_callable_seam()
     auto hand = sw::initial_roll(initial);
     require(initial.calls() == sw::dice_per_hand, "initial roll should consume five faces");
 
-    hand = hand.with_hold(1).with_hold(4);
-
+    const std::array<bool, sw::dice_per_hand> held{false, true, false, false, true};
     sequence_source reroll{{
         sw::face::six,
         sw::face::five,
         sw::face::four,
     }};
 
-    hand = sw::reroll(hand, reroll);
+    hand = sw::reroll(hand, sw::hold_view{held}, reroll);
 
     require(reroll.calls() == 3, "reroll should consume only unheld dice");
     require(hand[0] == sw::face::six, "first unheld die should reroll");
@@ -97,8 +96,17 @@ void test_semantic_callable_seam()
     require(hand[4] == sw::face::five, "held final die should survive reroll");
 }
 
-void test_hold_bounds_are_explicit()
+void test_hold_contract_is_fixed_extent_and_borrowed()
 {
+    static_assert(sw::hold_view::extent == sw::dice_per_hand);
+
+    sequence_source source{{
+        sw::face::six,
+        sw::face::six,
+        sw::face::six,
+        sw::face::six,
+        sw::face::six,
+    }};
     const sw::hand hand{{
         sw::face::one,
         sw::face::two,
@@ -106,15 +114,11 @@ void test_hold_bounds_are_explicit()
         sw::face::four,
         sw::face::five,
     }};
+    const std::array<bool, sw::dice_per_hand> held{true, true, true, true, true};
 
-    bool threw = false;
-    try {
-        static_cast<void>(hand.with_hold(sw::dice_per_hand));
-    } catch (const std::out_of_range&) {
-        threw = true;
-    }
-
-    require(threw, "holding a non-existent die should fail explicitly");
+    const auto rerolled = sw::reroll(hand, sw::hold_view{held}, source);
+    require(source.calls() == 0, "fully held hand should not consume the source");
+    require(rerolled.values() == hand.values(), "borrowed holds should preserve all held values");
 }
 
 void test_uniform_source_produces_domain_faces()
@@ -155,11 +159,11 @@ void test_erased_alternative()
     sw::alternatives::erased_face_source source = [&sequence] { return sequence(); };
 
     auto hand = sw::alternatives::initial_roll(source);
-    hand = hand.with_hold(0).with_hold(2).with_hold(4);
+    const std::array<bool, sw::dice_per_hand> held{true, false, true, false, true};
 
     sequence_source replacement{{sw::face::six, sw::face::six}};
     source = [&replacement] { return replacement(); };
-    hand = sw::alternatives::reroll(hand, source);
+    hand = sw::alternatives::reroll(hand, sw::hold_view{held}, source);
 
     require(hand[0] == sw::face::one, "erased seam should preserve held die 0");
     require(hand[1] == sw::face::six, "erased seam should reroll die 1");
@@ -172,12 +176,12 @@ void test_urbg_alternative()
 {
     std::minstd_rand engine{7};
     auto hand = sw::alternatives::initial_roll_urbg(engine);
-    hand = hand.with_hold(2);
-    const auto held = hand[2];
+    const std::array<bool, sw::dice_per_hand> held{false, false, true, false, false};
+    const auto preserved = hand[2];
 
-    hand = sw::alternatives::reroll_urbg(hand, engine);
+    hand = sw::alternatives::reroll_urbg(hand, sw::hold_view{held}, engine);
 
-    require(hand[2] == held, "URBG alternative should preserve held dice");
+    require(hand[2] == preserved, "URBG alternative should preserve held dice");
     for (const auto side : hand.values()) {
         const auto numeric = sw::value(side);
         require(numeric >= 1 && numeric <= sw::sides_per_die, "URBG alternative returned invalid face");
@@ -190,7 +194,7 @@ int main()
 {
     try {
         test_semantic_callable_seam();
-        test_hold_bounds_are_explicit();
+        test_hold_contract_is_fixed_extent_and_borrowed();
         test_uniform_source_produces_domain_faces();
         test_virtual_alternative();
         test_erased_alternative();
