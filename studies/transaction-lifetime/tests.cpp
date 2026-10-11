@@ -210,6 +210,7 @@ void test_copyable_success_flag_has_conflicting_owners()
     );
 }
 
+#if __has_include(<scope>)
 void test_scope_exit_alternative()
 {
     sw::fake_backend backend;
@@ -222,6 +223,7 @@ void test_scope_exit_alternative()
         "successful explicit commit should release scope-exit rollback"
     );
 }
+#endif
 
 } // namespace
 
@@ -236,7 +238,9 @@ int main()
         test_move_transfers_rollback_ownership();
         test_cleanup_failure_does_not_throw_from_destructor();
         test_copyable_success_flag_has_conflicting_owners();
+#if __has_include(<scope>)
         test_scope_exit_alternative();
+#endif
     } catch (const std::exception& error) {
         std::cerr << "transaction-lifetime study failed: " << error.what() << '\n';
         return EXIT_FAILURE;
