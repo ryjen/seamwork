@@ -55,19 +55,37 @@ struct resolved_endpoint {
     std::uint16_t port{};
 };
 
-struct secure_connection_plan {
-    requested_authority authority;
-    resolved_endpoint transport;
+class secure_connection_plan
+{
+public:
+    secure_connection_plan(requested_authority authority, resolved_endpoint transport)
+        : authority_(std::move(authority)), transport_(std::move(transport))
+    {
+    }
+
+    [[nodiscard]] auto authority() const noexcept -> const requested_authority&
+    {
+        return authority_;
+    }
+
+    [[nodiscard]] auto transport() const noexcept -> const resolved_endpoint&
+    {
+        return transport_;
+    }
+
+private:
+    requested_authority authority_;
+    resolved_endpoint transport_;
 };
 
 [[nodiscard]] inline auto plan_connection(
-    const requested_authority& authority,
-    const resolved_endpoint& transport
+    requested_authority authority,
+    resolved_endpoint transport
 ) -> secure_connection_plan
 {
     return secure_connection_plan{
-        .authority = authority,
-        .transport = transport,
+        std::move(authority),
+        std::move(transport),
     };
 }
 
@@ -132,8 +150,8 @@ inline void execute_secure_plan(
     fake_peer_verifier& verifier
 )
 {
-    dialer.connect(plan.transport);
-    verifier.verify(plan.authority.name);
+    dialer.connect(plan.transport());
+    verifier.verify(plan.authority().name);
 }
 
 namespace alternatives {
