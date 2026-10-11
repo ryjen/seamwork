@@ -73,11 +73,11 @@ void test_multiple_candidates_share_one_authority()
     );
 
     require(
-        first.authority.name == second.authority.name,
+        first.authority().name == second.authority().name,
         "resolution candidates should preserve the same authority identity"
     );
     require(
-        first.transport.address != second.transport.address,
+        first.transport().address != second.transport().address,
         "resolution candidates may differ in transport address"
     );
 }
