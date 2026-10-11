@@ -77,6 +77,7 @@ Promotion is optional. Demonstrating why an abstraction should not exist is a va
 - [Yahtsee randomness seam](studies/yahtsee-randomness/README.md) — compares a semantic callable/concept, runtime interface, type erasure, and direct URBG dependency against a focused C++23 consumer.
 - [Yahtsee `std::expected` boundary](studies/yahtsee-expected/README.md) — compares exceptions, `std::optional`, and `std::expected` for recoverable parsing/validation, then removes the error channel once domain invariants are established.
 - [Yahtsee typed turn state](studies/yahtsee-turn-state/README.md) — compares mutable flag-driven state with a closed `std::variant` of state-specific values and explicit transition errors.
+- [Standard formatting](studies/standard-format/README.md) — revisits the archived formatter and tests whether direct `std::format`/`std::format_to` can delete the project-specific abstraction entirely.
 
 Studies are evidence and design work first. They are not automatically promoted into reusable Seamwork components.
 
