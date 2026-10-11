@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted and implemented for the primary repository by #34; independent historical repositories remain for provenance.
+Accepted and implemented for the primary repository by PR #35 under #34; independent historical repositories remain for provenance.
 
 This ADR supersedes ADR 0001 as the target topology decision. ADR 0001 remains useful historical context for why the `libcoda` modernization originally retained component repositories.
 
