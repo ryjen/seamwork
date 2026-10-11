@@ -52,7 +52,9 @@ if (!committed) return error;
 rollback.release();
 ```
 
-The study keeps it as a concrete alternative. The named guard is preferred when transaction ownership/lifecycle itself is part of the interface and may move between local scopes.
+The study keeps it as a concrete alternative **when the standard library provides `<scope>`**. Seamwork's required Clang environment currently does not expose that C++23 header, so the alternative is conditionally compiled rather than making an optional library facility a portability requirement.
+
+That portability result strengthens the named guard choice for the current repository: it expresses the required lifecycle semantics without depending on incomplete `std::scope_exit` availability.
 
 See [QART](qart.md).
 
