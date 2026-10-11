@@ -80,6 +80,10 @@ Promotion is optional. Demonstrating why an abstraction should not exist is a va
 
 Studies are evidence and design work first. They are not automatically promoted into reusable Seamwork components.
 
+## Integrated examples
+
+- [Composed Yahtzee turn](examples/yahtzee-turn/README.md) — combines the randomness, typed turn-state, and scoring/error-boundary studies in one deterministic consumer and records the integration friction instead of hiding it behind new abstractions.
+
 ## Security
 
 The existing security work remains part of the evidence base:

@@ -28,7 +28,7 @@ cmake --build --preset release
 ctest --preset release
 ```
 
-`SEAMWORK_BUILD_STUDIES` and `SEAMWORK_BUILD_TESTS` default to `ON`. Active targets declare `cxx_std_23` and own their include and link requirements.
+`SEAMWORK_BUILD_STUDIES`, `SEAMWORK_BUILD_EXAMPLES`, and `SEAMWORK_BUILD_TESTS` default to `ON`. Examples are maintained consumers of study interfaces, so `SEAMWORK_BUILD_EXAMPLES=ON` requires studies to be enabled. Active targets declare `cxx_std_23` and own their include and link requirements.
 
 ## CI and qualification
 
