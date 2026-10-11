@@ -46,8 +46,8 @@ Scoring, networking, terminal UI, persistence, and the broad generic dice API ar
 
 The primary variant uses:
 
-- a small `face` domain enum;
-- a value-semantic `hand` that owns only rolled face values;
+- the promoted `seamwork::yahtsee::face` domain value;
+- the promoted value-semantic `seamwork::yahtsee::hand` that owns only rolled face values;
 - a fixed-extent borrowed `hold_view` for reroll policy;
 - a C++20/23 concept describing a semantic `face_source`;
 - caller-owned source lifetime through a reference;
@@ -83,6 +83,6 @@ The example target is `seamwork_yahtsee_randomness_example`.
 
 ## Promotion status
 
-**Study only.**
+The **randomness behavior remains study-only**.
 
-Nothing here is yet a general Seamwork component. The point is to validate the refinement workflow and a real consumer-facing seam first.
+The stable Yahtsee `face` and five-value `hand` contract was promoted separately under #51 after two independent consumers demonstrated the same representation need. Random-source concepts, URBG adapters, and reroll behavior were not promoted.
