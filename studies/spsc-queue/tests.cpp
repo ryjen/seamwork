@@ -179,7 +179,6 @@ void test_concurrent_spsc_ordering()
     sw::queue<std::uint32_t, 64> queue;
 
     std::atomic_bool start{false};
-    std::atomic_bool producer_done{false};
     std::atomic_bool failed{false};
 
     std::thread producer{
@@ -190,11 +189,12 @@ void test_concurrent_spsc_ordering()
 
             for (std::uint32_t value = 0; value < count; ++value) {
                 while (!queue.try_push(value)) {
+                    if (failed.load(std::memory_order_acquire)) {
+                        return;
+                    }
                     std::this_thread::yield();
                 }
             }
-
-            producer_done.store(true, std::memory_order_release);
         }
     };
 
@@ -208,12 +208,7 @@ void test_concurrent_spsc_ordering()
             while (expected < count) {
                 const auto value = queue.try_pop();
                 if (!value) {
-                    if (
-                        producer_done.load(std::memory_order_acquire) &&
-                        expected < count
-                    ) {
-                        std::this_thread::yield();
-                    }
+                    std::this_thread::yield();
                     continue;
                 }
 
