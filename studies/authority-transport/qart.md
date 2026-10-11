@@ -51,6 +51,8 @@ The types are intentionally not convertible to one another.
 
 A dialer receives only `resolved_endpoint`; a verifier receives only `authority_name`.
 
+The composed connection plan owns both and exposes them read-only after construction, so a resolution result cannot overwrite the stored authority through the plan API.
+
 This turns an important security convention into a compile-time interface constraint.
 
 ### D. Verify the resolved address
