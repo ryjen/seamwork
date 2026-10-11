@@ -37,19 +37,16 @@ struct noexcept_callback {
     }
 };
 
+template <class Task>
+concept startable_delayed_task = requires(Task&& task) {
+    sw::delayed_task::start(0ms, std::forward<Task>(task));
+};
+
 static_assert(!std::copy_constructible<sw::delayed_task>);
 static_assert(std::move_constructible<sw::delayed_task>);
 static_assert(!std::is_move_assignable_v<sw::delayed_task>);
-static_assert(
-    !requires {
-        sw::delayed_task::start(0ms, throwing_callback{});
-    }
-);
-static_assert(
-    requires {
-        sw::delayed_task::start(0ms, noexcept_callback{});
-    }
-);
+static_assert(!startable_delayed_task<throwing_callback>);
+static_assert(startable_delayed_task<noexcept_callback>);
 
 void test_zero_delay_executes_owned_callback()
 {
@@ -123,7 +120,7 @@ void test_move_transfers_worker_ownership()
     require(!first.joinable(), "moved-from task should release worker ownership");
     require(second.joinable(), "moved-to task should own worker");
 
-    second.request_stop();
+    static_cast<void>(second.request_stop());
     second.join();
 
     require(!called.load(std::memory_order_acquire), "moved task should still cancel safely");
@@ -148,7 +145,7 @@ void test_running_callback_observes_stop_token()
     );
 
     started.wait();
-    task.request_stop();
+    static_cast<void>(task.request_stop());
     task.join();
 
     require(
