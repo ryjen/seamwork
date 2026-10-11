@@ -2,6 +2,7 @@
 
 #include <array>
 #include <atomic>
+#include <bit>
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
@@ -17,6 +18,7 @@ namespace detail {
 template <class T, std::size_t Capacity, std::unsigned_integral Sequence>
     requires(
         Capacity > 0 &&
+        std::has_single_bit(Capacity) &&
         Capacity <= static_cast<std::size_t>(std::numeric_limits<Sequence>::max()) &&
         std::is_nothrow_move_constructible_v<T> &&
         std::is_nothrow_destructible_v<T>)
