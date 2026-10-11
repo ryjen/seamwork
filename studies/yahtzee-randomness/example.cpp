@@ -1,3 +1,4 @@
+#include <array>
 #include <iostream>
 #include <random>
 
@@ -12,9 +13,6 @@ void print(const sw::hand& hand)
             std::cout << ' ';
         }
         std::cout << sw::value(hand[index]);
-        if (hand.is_held(index)) {
-            std::cout << '*';
-        }
     }
     std::cout << '\n';
 }
@@ -27,7 +25,7 @@ int main()
     auto hand = sw::initial_roll(source);
     print(hand);
 
-    hand = hand.with_hold(0).with_hold(2);
-    hand = sw::reroll(hand, source);
+    const std::array<bool, sw::dice_per_hand> held{true, false, true, false, false};
+    hand = sw::reroll(hand, sw::hold_view{held}, source);
     print(hand);
 }
