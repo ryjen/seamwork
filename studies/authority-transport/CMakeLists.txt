@@ -1,0 +1,26 @@
+add_library(seamwork_authority_transport_study INTERFACE)
+target_compile_features(seamwork_authority_transport_study INTERFACE cxx_std_23)
+target_include_directories(seamwork_authority_transport_study
+    INTERFACE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+
+add_executable(seamwork_authority_transport_example example.cpp)
+target_link_libraries(seamwork_authority_transport_example PRIVATE seamwork_authority_transport_study)
+target_compile_features(seamwork_authority_transport_example PRIVATE cxx_std_23)
+set_target_properties(seamwork_authority_transport_example PROPERTIES CXX_EXTENSIONS OFF)
+
+add_executable(seamwork_authority_transport_test tests.cpp)
+target_link_libraries(seamwork_authority_transport_test PRIVATE seamwork_authority_transport_study)
+target_compile_features(seamwork_authority_transport_test PRIVATE cxx_std_23)
+set_target_properties(seamwork_authority_transport_test PROPERTIES CXX_EXTENSIONS OFF)
+
+if(SEAMWORK_BUILD_TESTS)
+    add_test(NAME seamwork_authority_transport COMMAND seamwork_authority_transport_test)
+endif()
+
+add_custom_target(seamwork_authority_transport_check
+    COMMAND $<TARGET_FILE:seamwork_authority_transport_test>
+    DEPENDS seamwork_authority_transport_test
+    USES_TERMINAL
+)
