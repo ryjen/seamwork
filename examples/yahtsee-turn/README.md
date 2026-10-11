@@ -30,13 +30,24 @@ Issue #42 uses that consumer evidence to refine the seam without extracting a sh
 
 This removes synchronization work while keeping the studies independent: the randomness study knows only `std::span<const bool, 5>`, not the turn-state implementation type.
 
-### Duplicate hand representations
+### Scoring boundary decision
 
 The randomness study models faces as a typed `face` enum. The scoring-boundary study intentionally accepts raw integers at its validation boundary and produces its own validated `hand`.
 
-The example therefore performs a small explicit conversion before scoring.
+The example therefore performs a small explicit conversion before scoring:
 
-This is cheap and understandable. It is recorded as evidence rather than hidden behind a generic adapter framework.
+```text
+randomness::hand
+  -> five integers
+  -> scoring::make_hand(...)
+  -> scoring::hand
+```
+
+Issue #46 evaluated removing this revalidation. The selected result is to **keep it for now**.
+
+The success-path cost is bounded to five conversions/range checks, while the alternatives either expose an unchecked scoring constructor, couple scoring directly to the randomness study, or prematurely promote a shared Yahtsee hand type.
+
+This is a deliberate boundary rather than unresolved accidental duplication. #47 will add a second practical consumer before any shared Yahtsee domain type is considered for promotion.
 
 ### Composition root remains simple
 
