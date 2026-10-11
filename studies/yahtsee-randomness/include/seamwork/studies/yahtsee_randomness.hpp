@@ -1,57 +1,25 @@
 #pragma once
 
-#include <array>
 #include <concepts>
 #include <cstddef>
-#include <cstdint>
 #include <functional>
 #include <random>
 #include <span>
 #include <utility>
 
+#include <seamwork/yahtsee/domain.hpp>
+
 namespace seamwork::studies::yahtsee {
 
-inline constexpr std::size_t dice_per_hand = 5;
+inline constexpr std::size_t dice_per_hand = seamwork::yahtsee::dice_per_hand;
 inline constexpr unsigned sides_per_die = 6;
 
-enum class face : std::uint8_t {
-    one = 1,
-    two,
-    three,
-    four,
-    five,
-    six,
-};
+using face = seamwork::yahtsee::face;
+using face_values = seamwork::yahtsee::face_values;
+using hand = seamwork::yahtsee::hand;
+using seamwork::yahtsee::value;
 
-[[nodiscard]] constexpr auto value(face side) noexcept -> unsigned
-{
-    return static_cast<unsigned>(std::to_underlying(side));
-}
-
-using face_values = std::array<face, dice_per_hand>;
 using hold_view = std::span<const bool, dice_per_hand>;
-
-class hand
-{
-public:
-    constexpr explicit hand(face_values values) noexcept
-        : values_(values)
-    {
-    }
-
-    [[nodiscard]] constexpr auto values() const noexcept -> const face_values&
-    {
-        return values_;
-    }
-
-    [[nodiscard]] constexpr auto operator[](std::size_t index) const -> face
-    {
-        return values_.at(index);
-    }
-
-private:
-    face_values values_;
-};
 
 template <class Source>
 concept face_source = requires(Source& source) {
