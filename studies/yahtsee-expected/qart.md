@@ -58,15 +58,15 @@ Costs:
 The study therefore recommends `std::expected` selectively, not as a project-wide default return type.
 
 
-## Consumer-driven follow-up: trusted Yahtsee hands (#46)
+## Consumer-driven follow-up at #46: trusted Yahtsee hands
 
-The composed Yahtsee consumer already has a typed randomness hand whose five faces are guaranteed to be in the domain range. To score it, the composition root currently converts those faces to five integers and calls `make_hand(...)`, which validates them again.
+At the time of #46, the composed Yahtsee consumer already had a typed randomness hand whose five faces were guaranteed to be in the domain range. To score it, the composition root converted those faces to five integers and called `make_hand(...)`, validating them again.
 
 That looks redundant, so #46 compared ways to remove it.
 
 ### A. Keep conversion + validation
 
-The current path is:
+The #46 path was:
 
 ```text
 randomness::hand
