@@ -1,9 +1,12 @@
 #pragma once
 
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <ranges>
 #include <span>
+#include <type_traits>
 #include <vector>
 
 namespace seamwork::studies::borrowed_frame {
@@ -35,6 +38,15 @@ struct owned_frame {
     std::size_t consumed{};
 };
 
+template <class Range>
+concept borrowed_byte_range =
+    std::ranges::contiguous_range<Range>
+    && std::ranges::sized_range<Range>
+    && std::ranges::borrowed_range<Range>
+    && std::same_as<
+        std::remove_cv_t<std::ranges::range_value_t<Range>>,
+        std::byte>;
+
 [[nodiscard]] constexpr auto declared_payload_length(
     std::span<const std::byte, header_size> header
 ) noexcept -> std::size_t
@@ -44,9 +56,11 @@ struct owned_frame {
     return static_cast<std::size_t>((high << 8U) | low);
 }
 
-[[nodiscard]] constexpr auto parse(
+namespace detail {
+
+[[nodiscard]] constexpr auto parse_span(
     std::span<const std::byte> input,
-    std::size_t max_payload = default_max_payload
+    std::size_t max_payload
 ) -> std::expected<frame_view, parse_error>
 {
     if (input.size() < header_size) {
@@ -85,6 +99,22 @@ struct owned_frame {
     };
 }
 
+} // namespace detail
+
+template <borrowed_byte_range Range>
+[[nodiscard]] constexpr auto parse(
+    Range&& input,
+    std::size_t max_payload = default_max_payload
+) -> std::expected<frame_view, parse_error>
+{
+    const auto view = std::span<const std::byte>{
+        std::ranges::data(input),
+        static_cast<std::size_t>(std::ranges::size(input)),
+    };
+
+    return detail::parse_span(view, max_payload);
+}
+
 [[nodiscard]] constexpr auto parse_raw(
     const std::byte* data,
     std::size_t size,
@@ -99,7 +129,7 @@ struct owned_frame {
         }};
     }
 
-    return parse(std::span<const std::byte>{data, size}, max_payload);
+    return detail::parse_span(std::span<const std::byte>{data, size}, max_payload);
 }
 
 [[nodiscard]] inline auto retain(frame_view frame) -> owned_frame
