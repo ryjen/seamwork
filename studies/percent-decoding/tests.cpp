@@ -69,6 +69,17 @@ void test_decoded_nul_is_preserved()
     require((*decoded)[2] == 'B', "suffix should remain intact");
 }
 
+void test_high_byte_is_preserved()
+{
+    const auto decoded = sw::decode_percent("%FF");
+    require(decoded.has_value(), "0xFF escape should decode");
+    require(decoded->size() == 1, "high-byte escape should produce one byte");
+    require(
+        static_cast<unsigned char>((*decoded)[0]) == 0xFFU,
+        "decoded high byte should preserve its object representation"
+    );
+}
+
 void test_plus_policy_is_explicit()
 {
     const auto literal = sw::decode_percent("a+b");
@@ -83,13 +94,13 @@ void test_exception_alternative_preserves_error_information()
     bool caught = false;
     try {
         static_cast<void>(sw::alternatives::decode_or_throw("%Q0"));
-    } catch (const sw::decode_error& error) {
+    } catch (const sw::decode_exception& exception) {
         caught = true;
         require(
-            error.code == sw::decode_error_code::invalid_hex_digit,
+            exception.error().code == sw::decode_error_code::invalid_hex_digit,
             "throwing alternative should retain typed error"
         );
-        require(error.index == 1, "throwing alternative should retain error position");
+        require(exception.error().index == 1, "throwing alternative should retain error position");
     }
 
     require(caught, "throwing alternative should throw malformed-input error");
@@ -112,16 +123,13 @@ int main()
         test_truncated_escape();
         test_invalid_hex_digit();
         test_decoded_nul_is_preserved();
+        test_high_byte_is_preserved();
         test_plus_policy_is_explicit();
         test_exception_alternative_preserves_error_information();
         test_lenient_alternative_passes_invalid_escape_through();
     } catch (const std::exception& error) {
         std::cerr << "percent-decoding study failed: " << error.what() << '\n';
         return EXIT_FAILURE;
-    } catch (const sw::decode_error&) {
-        std::cerr << "percent-decoding study threw an unexpected decode_error\n";
-        return EXIT_FAILURE;
-    }
 
     return EXIT_SUCCESS;
 }
