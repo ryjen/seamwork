@@ -35,7 +35,7 @@ This study keeps only the behavior needed to exercise the seam:
 
 - five six-sided values form a valid Yahtzee hand;
 - a first roll produces all five values;
-- dice can be held;
+- a reroll receives a caller-owned fixed-size hold selection;
 - a reroll asks the source only for unheld dice;
 - production randomness is backed by standard C++ random facilities;
 - tests can provide exact semantic face sequences.
@@ -47,7 +47,8 @@ Scoring, networking, terminal UI, persistence, and the broad generic dice API ar
 The primary variant uses:
 
 - a small `face` domain enum;
-- a value-semantic `hand`;
+- a value-semantic `hand` that owns only rolled face values;
+- a fixed-extent borrowed `hold_view` for reroll policy;
 - a C++20/23 concept describing a semantic `face_source`;
 - caller-owned source lifetime through a reference;
 - a `uniform_face_source` adapter around any standard URBG.
@@ -55,6 +56,18 @@ The primary variant uses:
 The study also compiles runtime-interface, type-erased, and direct-URBG alternatives so the recommendation is based on concrete shapes rather than a straw-man comparison.
 
 See [QART](qart.md) for the decision.
+
+## Consumer-driven refinement
+
+The first composed Yahtzee example exposed duplicate ownership: both the randomness study and the turn-state study stored which dice were held. Issue #42 removes that duplication.
+
+The randomness study now owns only dice values. Reroll policy is supplied explicitly as a borrowed fixed-extent view:
+
+```cpp
+reroll(current_hand, hold_view, source)
+```
+
+In the composed consumer, the turn-state model remains the single authority for hold decisions and the randomness seam borrows that state only for the duration of the reroll call. This keeps ownership and lifetime visible without coupling the randomness study to the concrete turn-state type.
 
 ## Build
 
