@@ -30,24 +30,15 @@ Issue #42 uses that consumer evidence to refine the seam without extracting a sh
 
 This removes synchronization work while keeping the studies independent: the randomness study knows only `std::span<const bool, 5>`, not the turn-state implementation type.
 
-### Scoring boundary decision
+### Scoring boundary evolution
 
-The randomness study models faces as a typed `face` enum. The scoring-boundary study intentionally accepts raw integers at its validation boundary and produces its own validated `hand`.
+This example originally converted the randomness hand back to raw integers and revalidated it through the scoring boundary.
 
-The example therefore performs a small explicit conversion before scoring:
+#46 deliberately kept that adapter after one consumer because removing it would have weakened validation or promoted a shared dependency without enough evidence.
 
-```text
-randomness::hand
-  -> five integers
-  -> scoring::make_hand(...)
-  -> scoring::hand
-```
+#47/#50 then added a second independent consumer and reproduced the same adapter. That additional evidence justified #51's narrow promotion of the Yahtsee face/hand value contract.
 
-Issue #46 evaluated removing this revalidation. The selected result is to **keep it for now**.
-
-The success-path cost is bounded to five conversions/range checks, while the alternatives either expose an unchecked scoring constructor, couple scoring directly to the randomness study, or prematurely promote a shared Yahtsee hand type.
-
-This is a deliberate boundary rather than unresolved accidental duplication. #47 will add a second practical consumer before any shared Yahtsee domain type is considered for promotion.
+The example now passes the shared typed hand directly into scoring. Raw external input still validates through the shared Yahtsee factory; no unchecked scoring path was introduced.
 
 ### Composition root remains simple
 
@@ -64,8 +55,8 @@ ctest --preset dev -R seamwork_example_yahtsee_turn
 ./build/dev/examples/yahtsee-turn/seamwork_example_yahtsee_turn
 ```
 
-## Promotion status
+## Promotion result
 
-This example does **not** promote any study into `components/`.
+This example, together with the independent scorecard consumer, supplied the evidence for the narrow [Yahtsee domain component](../../components/yahtsee-domain/README.md).
 
-Its purpose is to create consumer evidence for future refinement decisions.
+No application, scoring, randomness, or turn-state framework was promoted.
