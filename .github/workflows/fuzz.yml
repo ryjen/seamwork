@@ -1,0 +1,69 @@
+name: Fuzz smoke
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "fuzz/**"
+      - "studies/borrowed-frame/**"
+      - "studies/percent-decoding/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/fuzz.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fuzz-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  parser-fuzz:
+    name: Parser fuzz smoke (Clang)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+
+      - name: Configure fuzzers
+        run: |
+          nix develop --command env CC=clang CXX=clang++ cmake -S . -B build/fuzz -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DSEAMWORK_BUILD_FUZZERS=ON \
+            -DSEAMWORK_BUILD_TESTS=OFF \
+            -DSEAMWORK_BUILD_EXAMPLES=OFF
+
+      - name: Build fuzzers
+        run: |
+          nix develop --command cmake --build build/fuzz --parallel 2 --target \
+            seamwork_fuzz_borrowed_frame \
+            seamwork_fuzz_percent_decoding
+
+      - name: Fuzz borrowed frame
+        run: |
+          mkdir -p /tmp/seamwork-fuzz-artifacts
+          ./build/fuzz/fuzz/seamwork_fuzz_borrowed_frame \
+            fuzz/corpus/borrowed-frame \
+            -runs=5000 \
+            -max_len=8192 \
+            -timeout=2 \
+            -rss_limit_mb=2048 \
+            -artifact_prefix=/tmp/seamwork-fuzz-artifacts/
+
+      - name: Fuzz percent decoding
+        run: |
+          mkdir -p /tmp/seamwork-fuzz-artifacts
+          ./build/fuzz/fuzz/seamwork_fuzz_percent_decoding \
+            fuzz/corpus/percent-decoding \
+            -runs=5000 \
+            -max_len=4096 \
+            -timeout=2 \
+            -rss_limit_mb=2048 \
+            -artifact_prefix=/tmp/seamwork-fuzz-artifacts/
