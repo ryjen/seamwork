@@ -29,6 +29,7 @@ See:
 - [Project charter](docs/charter.md)
 - [Design principles](docs/principles.md)
 - [Refinement workflow](docs/refinement-workflow.md)
+- [Study catalog and evidence coverage](docs/study-catalog.md)
 - [Re-charter and migration plan](docs/migration/seamwork-rebrand.md)
 
 ## Architecture
@@ -73,6 +74,9 @@ problem
 Promotion is optional. Demonstrating why an abstraction should not exist is a valid result.
 
 ## Current studies
+
+For selected outcomes, promotion decisions, coverage gaps, and the evidence-backed next priority, see the [study catalog](docs/study-catalog.md).
+
 
 - [Yahtsee randomness seam](studies/yahtsee-randomness/README.md) — compares a semantic callable/concept, runtime interface, type erasure, and direct URBG dependency against a focused C++23 consumer.
 - [Yahtsee `std::expected` boundary](studies/yahtsee-expected/README.md) — compares exceptions, `std::optional`, and `std::expected` for recoverable parsing/validation, then removes the error channel once domain invariants are established.
