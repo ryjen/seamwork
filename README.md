@@ -83,6 +83,7 @@ Studies are evidence and design work first. They are not automatically promoted 
 ## Integrated examples
 
 - [Composed Yahtsee turn](examples/yahtsee-turn/README.md) — combines the randomness, typed turn-state, and scoring/error-boundary studies in one deterministic consumer and records the integration friction instead of hiding it behind new abstractions.
+- [Yahtsee scorecard](examples/yahtsee-scorecard/README.md) — independently reuses the same study seams across two turns and score accumulation to test whether repeated adapter friction is real enough to justify promotion.
 
 ## Security
 
