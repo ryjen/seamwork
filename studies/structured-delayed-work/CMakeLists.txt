@@ -1,8 +1,14 @@
+find_package(Threads REQUIRED)
+
 add_library(seamwork_structured_delayed_work_study INTERFACE)
 target_compile_features(seamwork_structured_delayed_work_study INTERFACE cxx_std_23)
 target_include_directories(seamwork_structured_delayed_work_study
     INTERFACE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+target_link_libraries(
+    seamwork_structured_delayed_work_study
+    INTERFACE Threads::Threads
 )
 
 add_executable(seamwork_structured_delayed_work_example example.cpp)
