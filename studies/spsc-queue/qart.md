@@ -112,9 +112,15 @@ Fullness uses the unsigned modular distance:
 static_cast<Sequence>(write - read) >= Capacity
 ```
 
-Because the producer is never allowed to advance more than `Capacity` slots ahead of the consumer, the outstanding distance remains representable modulo the sequence range as long as capacity is smaller than that modulus.
+Because the producer is never allowed to advance more than `Capacity` slots ahead of the consumer, the outstanding distance remains representable modulo the sequence range.
 
-The test-only sequence parameter allows `uint8_t` qualification of repeated wraparound.
+However, slot selection also uses `sequence % Capacity`. The initial generic study allowed arbitrary capacities. CI deliberately instantiated an 8-bit sequence with capacity 3; when the sequence wrapped from 255 to 0, the slot mapping did not advance continuously because 3 does not divide the 256-value sequence modulus.
+
+That failure exposed a hidden assumption already satisfied by the motivating DSP queues: their capacity is 64, a power of two.
+
+The selected study now requires power-of-two capacity. For binary unsigned sequence types, the sequence modulus is also a power of two, so the slot mapping remains continuous across wrap.
+
+The test-only sequence parameter uses `uint8_t` with capacity 4 to qualify repeated wraparound in bounded time.
 
 ## Recommendation
 
