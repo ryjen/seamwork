@@ -76,6 +76,8 @@ Pending delay uses a condition-variable wait with a stop callback so stop reques
 
 On destruction, `std::jthread` requests stop and joins. Therefore no worker survives destruction of its owner.
 
+The owner cannot prove the lifetime of arbitrary objects captured by reference. Callers must still arrange those objects to outlive the task. Structured ownership makes that requirement enforceable by ordinary scope ordering instead of allowing detached work to escape the scope entirely.
+
 ## In-task cancellation
 
 Once the callback begins, cancellation is cooperative.
