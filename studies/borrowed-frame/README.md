@@ -18,12 +18,19 @@ The parser performs no I/O. The caller owns the input bytes.
 
 ## Selected interface
 
+The first version accepted `std::span<const std::byte>` directly. That clearly expressed borrowing, but an implicit conversion from a temporary owning container could still create a span whose storage died immediately after the call.
+
+The refined public boundary accepts only a contiguous, sized **borrowed range** of bytes:
+
 ```cpp
-parse(std::span<const std::byte> input, std::size_t max_payload)
+template <borrowed_byte_range Range>
+parse(Range&& input, std::size_t max_payload)
     -> std::expected<frame_view, parse_error>
 ```
 
-`frame_view::payload` **borrows from the caller's input**. The name and type make the non-owning result visible.
+This keeps caller-owned lvalue arrays/vectors ergonomic, accepts spans, and rejects common rvalue-owning calls such as `parse(std::vector<std::byte>{...})`.
+
+`frame_view::payload` still **borrows from the caller's input**. C++ cannot prove arbitrary span lifetime; the constraint removes a common accidental dangling path rather than claiming complete lifetime safety.
 
 The parser checks the header before reading it, validates the declared payload against an explicit maximum, verifies availability before slicing, and returns structured failures.
 
