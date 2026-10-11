@@ -59,11 +59,13 @@ The active transaction has one owning guard. Copy construction/assignment and mo
 
 ### C. `std::scope_exit`
 
-A local rollback guard plus explicit commit is compact and uses a standard C++23 facility.
+A local rollback guard plus explicit commit is compact and, where available, uses the C++23 `std::scope_exit` facility.
 
 This is attractive when transaction handling is entirely local and no transaction object needs to move through helper scopes.
 
-A named move-only guard is more communicative when transaction ownership itself is an API concept.
+The required Seamwork Clang environment currently lacks the `<scope>` header, so this alternative is conditionally compiled. The study treats that as portability evidence rather than adding a project-local scope-exit substitute.
+
+A named move-only guard is more communicative when transaction ownership itself is an API concept and is portable across Seamwork's required toolchains.
 
 ### D. Commit-on-success destructor
 
