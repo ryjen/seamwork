@@ -34,7 +34,7 @@ void test_initial_roll_enters_choice_state()
 
     state = step(state, sw::turn_action::roll_completed);
     require(std::holds_alternative<sw::choosing_dice>(state), "first roll should allow a choice");
-    require(std::get<sw::choosing_dice>(state).rolls_taken == 1, "first roll should be counted once");
+    require(std::get<sw::choosing_dice>(state).rolls_taken() == sw::choice_roll_count::one, "first roll should be counted once");
 }
 
 void test_held_dice_survive_reroll_transition()
@@ -43,17 +43,17 @@ void test_held_dice_survive_reroll_transition()
     state = step(state, sw::toggle_hold{2});
 
     const auto& choosing = std::get<sw::choosing_dice>(state);
-    require(choosing.held[2], "selected die should be held");
+    require(choosing.held()[2], "selected die should be held");
 
     state = step(state, sw::turn_action::reroll);
     const auto& awaiting = std::get<sw::awaiting_roll>(state);
-    require(awaiting.rolls_taken == 1, "reroll should preserve the completed-roll count");
-    require(awaiting.held[2], "reroll should preserve held dice");
+    require(awaiting.rolls_taken() == sw::prior_roll_count::one, "reroll should preserve the completed-roll count");
+    require(awaiting.held()[2], "reroll should preserve held dice");
 
     state = step(state, sw::turn_action::roll_completed);
     const auto& next_choice = std::get<sw::choosing_dice>(state);
-    require(next_choice.rolls_taken == 2, "second completed roll should increment the count");
-    require(next_choice.held[2], "held die should survive the completed reroll");
+    require(next_choice.rolls_taken() == sw::choice_roll_count::two, "second completed roll should increment the count");
+    require(next_choice.held()[2], "held die should survive the completed reroll");
 }
 
 void test_third_roll_forces_scoring()
@@ -75,7 +75,7 @@ void test_third_roll_forces_scoring()
 
     state = step(state, sw::turn_action::score);
     require(std::holds_alternative<sw::completed>(state), "scoring should complete the turn");
-    require(std::get<sw::completed>(state).rolls_taken == sw::max_rolls, "completed state should retain roll count");
+    require(std::get<sw::completed>(state).rolls_taken() == sw::completed_roll_count::three, "completed state should retain roll count");
 }
 
 void test_scoring_can_end_turn_early()
@@ -84,7 +84,7 @@ void test_scoring_can_end_turn_early()
     state = step(state, sw::turn_action::score);
 
     require(std::holds_alternative<sw::completed>(state), "player may score after first roll");
-    require(std::get<sw::completed>(state).rolls_taken == 1, "early score should retain actual roll count");
+    require(std::get<sw::completed>(state).rolls_taken() == sw::completed_roll_count::one, "early score should retain actual roll count");
 }
 
 void test_invalid_commands_are_explicit()
