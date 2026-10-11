@@ -78,6 +78,7 @@ Promotion is optional. Demonstrating why an abstraction should not exist is a va
 - [Yahtsee `std::expected` boundary](studies/yahtsee-expected/README.md) — compares exceptions, `std::optional`, and `std::expected` for recoverable parsing/validation, then removes the error channel once domain invariants are established.
 - [Yahtsee typed turn state](studies/yahtsee-turn-state/README.md) — compares mutable flag-driven state with a closed `std::variant` of state-specific values and explicit transition errors.
 - [Standard formatting](studies/standard-format/README.md) — revisits the archived formatter and tests whether direct `std::format`/`std::format_to` can delete the project-specific abstraction entirely.
+- [Borrowed frame parsing](studies/borrowed-frame/README.md) — isolates a historical network byte-boundary problem and compares raw pointer/length, ownership, and borrowed `std::span` semantics with bounded parsing.
 
 Studies are evidence and design work first. They are not automatically promoted into reusable Seamwork components.
 
