@@ -27,6 +27,6 @@ int main()
     turn = apply_or_exit(turn, sw::turn_action::score);
 
     const auto& completed = std::get<sw::completed>(turn);
-    std::cout << "turn completed after " << completed.rolls_taken << " rolls\n";
+    std::cout << "turn completed after " << sw::value(completed.rolls_taken()) << " rolls\n";
     return 0;
 }
