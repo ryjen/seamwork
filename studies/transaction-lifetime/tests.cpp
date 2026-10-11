@@ -1,5 +1,7 @@
 #include <cstdlib>
+#include <array>
 #include <iostream>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -18,6 +20,16 @@ void require(bool condition, std::string_view message)
     }
 }
 
+template <std::size_t N>
+void require_events(
+    const sw::fake_backend& backend,
+    const std::array<sw::operation, N>& expected,
+    std::string_view message
+)
+{
+    require(std::ranges::equal(backend.events(), expected), message);
+}
+
 void test_explicit_commit()
 {
     sw::fake_backend backend;
@@ -32,8 +44,9 @@ void test_explicit_commit()
         require(!tx.active(), "successful commit should finish guard lifecycle");
     }
 
-    require(
-        backend.events() == std::vector{sw::operation::begin, sw::operation::commit},
+    require_events(
+        backend,
+        std::array{sw::operation::begin, sw::operation::commit},
         "successful scope should not add a rollback"
     );
 }
@@ -49,8 +62,9 @@ void test_abandonment_rolls_back()
         require(tx.active(), "started transaction should be active");
     }
 
-    require(
-        backend.events() == std::vector{sw::operation::begin, sw::operation::rollback},
+    require_events(
+        backend,
+        std::array{sw::operation::begin, sw::operation::rollback},
         "abandoned transaction should roll back"
     );
 }
@@ -67,8 +81,9 @@ void test_exception_path_rolls_back()
     } catch (const std::runtime_error&) {
     }
 
-    require(
-        backend.events() == std::vector{sw::operation::begin, sw::operation::rollback},
+    require_events(
+        backend,
+        std::array{sw::operation::begin, sw::operation::rollback},
         "exception path should roll back during unwinding"
     );
 }
@@ -92,8 +107,9 @@ void test_commit_failure_is_observable_then_rolls_back()
         require(tx.active(), "failed commit should leave transaction active for rollback");
     }
 
-    require(
-        backend.events() == std::vector{
+    require_events(
+        backend,
+        std::array{
             sw::operation::begin,
             sw::operation::commit,
             sw::operation::rollback,
@@ -142,8 +158,9 @@ void test_move_transfers_rollback_ownership()
         require(second.commit().has_value(), "moved-to guard should commit");
     }
 
-    require(
-        backend.events() == std::vector{sw::operation::begin, sw::operation::commit},
+    require_events(
+        backend,
+        std::array{sw::operation::begin, sw::operation::commit},
         "only moved-to guard should finalize transaction"
     );
 }
@@ -186,8 +203,9 @@ void test_copyable_success_flag_has_conflicting_owners()
         require(!backend.active(), "copy destruction should finalize shared backend state");
     }
 
-    require(
-        backend.events() == std::vector{sw::operation::begin, sw::operation::rollback},
+    require_events(
+        backend,
+        std::array{sw::operation::begin, sw::operation::rollback},
         "copy destruction order can override another copy's commit intent"
     );
 }
@@ -198,8 +216,9 @@ void test_scope_exit_alternative()
     const auto result = sw::alternatives::run_with_scope_exit(backend);
 
     require(result.has_value(), "scope_exit alternative should commit");
-    require(
-        backend.events() == std::vector{sw::operation::begin, sw::operation::commit},
+    require_events(
+        backend,
+        std::array{sw::operation::begin, sw::operation::commit},
         "successful explicit commit should release scope-exit rollback"
     );
 }
