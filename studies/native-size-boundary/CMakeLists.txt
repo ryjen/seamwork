@@ -1,0 +1,26 @@
+add_library(seamwork_native_size_boundary_study INTERFACE)
+target_compile_features(seamwork_native_size_boundary_study INTERFACE cxx_std_23)
+target_include_directories(seamwork_native_size_boundary_study
+    INTERFACE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+
+add_executable(seamwork_native_size_boundary_example example.cpp)
+target_link_libraries(seamwork_native_size_boundary_example PRIVATE seamwork_native_size_boundary_study)
+target_compile_features(seamwork_native_size_boundary_example PRIVATE cxx_std_23)
+set_target_properties(seamwork_native_size_boundary_example PROPERTIES CXX_EXTENSIONS OFF)
+
+add_executable(seamwork_native_size_boundary_test tests.cpp)
+target_link_libraries(seamwork_native_size_boundary_test PRIVATE seamwork_native_size_boundary_study)
+target_compile_features(seamwork_native_size_boundary_test PRIVATE cxx_std_23)
+set_target_properties(seamwork_native_size_boundary_test PROPERTIES CXX_EXTENSIONS OFF)
+
+if(SEAMWORK_BUILD_TESTS)
+    add_test(NAME seamwork_native_size_boundary COMMAND seamwork_native_size_boundary_test)
+endif()
+
+add_custom_target(seamwork_native_size_boundary_check
+    COMMAND $<TARGET_FILE:seamwork_native_size_boundary_test>
+    DEPENDS seamwork_native_size_boundary_test
+    USES_TERMINAL
+)

@@ -5,6 +5,7 @@ add_subdirectory(standard-format)
 add_subdirectory(borrowed-frame)
 add_subdirectory(transaction-lifetime)
 add_subdirectory(authority-transport)
+add_subdirectory(native-size-boundary)
 
 # Each C++23 study supplies an executable check, independent of optional CTest
 # registration, so CI can validate the implemented contract explicitly.
@@ -18,4 +19,5 @@ add_dependencies(
     seamwork_borrowed_frame_check
     seamwork_transaction_lifetime_check
     seamwork_authority_transport_check
+    seamwork_native_size_boundary_check
 )
