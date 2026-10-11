@@ -90,7 +90,8 @@ private:
     // Integration evidence: the randomness study and turn-state study both
     // currently own a hold mask. The application keeps them synchronized
     // explicitly rather than introducing a shared abstraction prematurely.
-    for (const std::size_t index : {std::size_t{1}, std::size_t{4}}) {
+    constexpr std::array hold_indices{std::size_t{1}, std::size_t{4}};
+    for (const auto index : hold_indices) {
         dice = dice.with_hold(index);
 
         transition = turn::apply(state, turn::toggle_hold{index});
