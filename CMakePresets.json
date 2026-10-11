@@ -9,55 +9,25 @@
     {
       "name": "dev",
       "displayName": "Seamwork Development",
-      "description": "Debug C++23 Seamwork studies with tests enabled; legacy libcoda is disabled.",
+      "description": "Debug C++23 Seamwork studies with tests enabled; no legacy aggregate is built.",
       "binaryDir": "${sourceDir}/build/dev",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "SEAMWORK_BUILD_STUDIES": "ON",
-        "SEAMWORK_BUILD_TESTS": "ON",
-        "SEAMWORK_BUILD_LEGACY": "OFF"
+        "SEAMWORK_BUILD_TESTS": "ON"
       }
     },
     {
       "name": "release",
       "displayName": "Seamwork Release",
-      "description": "Release C++23 Seamwork studies with deterministic tests; legacy libcoda is disabled.",
+      "description": "Release C++23 Seamwork studies with deterministic tests; no legacy aggregate is built.",
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "SEAMWORK_BUILD_STUDIES": "ON",
-        "SEAMWORK_BUILD_TESTS": "ON",
-        "SEAMWORK_BUILD_LEGACY": "OFF"
-      }
-    },
-    {
-      "name": "legacy-dev",
-      "displayName": "Legacy libcoda Development",
-      "description": "Explicit compatibility build of archived libcoda code with legacy tests enabled.",
-      "binaryDir": "${sourceDir}/build/legacy-dev",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "SEAMWORK_BUILD_STUDIES": "ON",
-        "SEAMWORK_BUILD_TESTS": "ON",
-        "SEAMWORK_BUILD_LEGACY": "ON",
-        "CODA_BUILD_TESTS": "ON"
-      }
-    },
-    {
-      "name": "legacy-release",
-      "displayName": "Legacy libcoda Release",
-      "description": "Explicit compatibility build of archived libcoda code with legacy tests disabled.",
-      "binaryDir": "${sourceDir}/build/legacy-release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "SEAMWORK_BUILD_STUDIES": "ON",
-        "SEAMWORK_BUILD_TESTS": "ON",
-        "SEAMWORK_BUILD_LEGACY": "ON",
-        "CODA_BUILD_TESTS": "OFF"
+        "SEAMWORK_BUILD_TESTS": "ON"
       }
     }
   ],
@@ -69,14 +39,6 @@
     {
       "name": "release",
       "configurePreset": "release"
-    },
-    {
-      "name": "legacy-dev",
-      "configurePreset": "legacy-dev"
-    },
-    {
-      "name": "legacy-release",
-      "configurePreset": "legacy-release"
     }
   ],
   "testPresets": [
@@ -90,13 +52,6 @@
     {
       "name": "release",
       "configurePreset": "release",
-      "output": {
-        "outputOnFailure": true
-      }
-    },
-    {
-      "name": "legacy-dev",
-      "configurePreset": "legacy-dev",
       "output": {
         "outputOnFailure": true
       }

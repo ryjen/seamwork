@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted as modernization guidance.
+Historical libcoda modernization guidance. Active Seamwork studies use the independent C++23 build and the general no-implicit-fetch rule.
 
 ## Goals
 

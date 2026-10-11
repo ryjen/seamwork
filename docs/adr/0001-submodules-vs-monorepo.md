@@ -54,6 +54,6 @@ That trade-off was reasonable for the old phase and produced useful evidence. It
 
 ## Consequence
 
-Existing submodules remain during the Seamwork inventory/migration so useful code and provenance are not lost.
+Existing submodules remained during the Seamwork inventory/migration so useful code and provenance were not lost. They were subsequently retired from the active Seamwork tree under #34 once snapshots and dispositions had been recorded.
 
 Their continued presence should be interpreted as transitional state governed by ADR 0002, not as endorsement of the old component topology.

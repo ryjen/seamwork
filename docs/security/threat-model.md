@@ -2,13 +2,13 @@
 
 ## Status
 
-Active modernization baseline. Component documents refine this model for format, database, and networking code.
+Historical libcoda security evidence, not an assertion that the archived implementations are currently maintained or hardened. Component documents refine this model for format, database, and networking code.
 
 ## Scope
 
 This threat model covers the aggregate libcoda toolkit and the security boundaries created when consumers pass data into format parsing, database/query APIs, URI handling, socket/protocol code, TLS, and third-party adapters.
 
-It does not assume all legacy code already satisfies the mitigations below. Findings marked as current debt are inputs to #4, #6, #8, and #9.
+It does not assume the archived implementations satisfy the mitigations below. These findings were inputs to the historical modernization issues #4, #6, #8, and #9 before the legacy aggregate was retired.
 
 ## Security goals
 
@@ -140,9 +140,9 @@ Mitigations:
 - pin runner environments where dependency package contracts are version-specific;
 - add SBOM/provenance work when packaging/release automation matures.
 
-## Current high-priority findings
+## Historical high-priority findings
 
-The current modernization review identified these concrete risks:
+The legacy modernization review identified these concrete risks in code that is no longer part of the active Seamwork build:
 
 1. **Network TLS verification:** the OpenSSL layer creates a client context and performs `SSL_connect`, but current code does not establish visible certificate-chain or hostname verification policy.
 2. **OpenSSL ownership:** `openssl_layer` exposes copy construction/assignment while owning `SSL*` and `SSL_CTX*`; shallow copying native owners can lead to double-free/use-after-free.

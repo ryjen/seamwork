@@ -56,27 +56,3 @@ jobs:
           CC: ${{ matrix.cc }}
           CXX: ${{ matrix.cxx }}
         run: nix develop --command ctest --preset release
-
-  legacy-compatibility:
-    name: Legacy libcoda compatibility
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          submodules: recursive
-          persist-credentials: false
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
-
-      - name: Configure and build archived compatibility graph
-        run: |
-          nix develop .#legacy --command bash -lc '
-            cmake --preset legacy-release -G Ninja -DENABLE_TEST_DB_FIXTURES=OFF -DPostgreSQL_TYPE_INCLUDE_DIR="$(pg_config --includedir-server)" -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-            cmake --build --preset legacy-release --parallel 2
-            cmake --build --preset legacy-release --target seamwork_study_checks
-          '

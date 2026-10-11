@@ -2,7 +2,7 @@
 
 ## Status
 
-Core re-charter complete. Legacy archival/absorption work continues independently.
+Core re-charter complete. PR #35 implements the primary repository's legacy build and submodule cutover under #34; GitHub archive settings for independent historical repositories are tracked separately.
 
 This document tracks the transition from `libcoda` to Seamwork. The transition intentionally separates project purpose, code disposition, C++23 migration, and repository renaming so history is preserved and legacy code is not promoted accidentally.
 
@@ -106,9 +106,9 @@ The first concrete study is tracked in #22: rebuild the smallest useful Yahtzee 
 
 ## C++23 migration
 
-The default build is now intended to be Seamwork-native: C++23 studies/tests build without the archived libcoda graph. Historical libcoda components remain available only through an explicit `SEAMWORK_BUILD_LEGACY=ON` compatibility path while archival/provenance work finishes.
+The current build is Seamwork-native: C++23 studies/tests build without archived libcoda submodules. The old `SEAMWORK_BUILD_LEGACY` compatibility path was retired after documenting the exact submodule pins. Historical reproduction uses the prior aggregate commit and component repositories.
 
-Active Seamwork targets own their compile-feature declarations. Archived targets retain their historical contracts only inside the compatibility path.
+Active Seamwork targets own their compile-feature declarations. Archived targets retain their historical contracts in their original repositories and the aggregate's Git history.
 
 When a legacy component becomes an active Seamwork study/component:
 
@@ -132,7 +132,7 @@ Do not perform a syntax-only "C++23 conversion."
 7. Provide temporary compatibility aliases where justified.
 8. Rename the GitHub repository from `libcoda` to `seamwork`. **Completed.**
 9. Update badges, package metadata, links, namespaces, include paths, and related repositories.
-10. Archive or redirect legacy component repositories according to their disposition.
+10. Archive or redirect legacy component repositories according to their disposition. **README redirects in place; GitHub archive settings pending.**
 
 The repository rename occurred only after the charter, C++23 study surface, legacy disposition, and default-build inversion were established, so the new name does not imply that all historical libcoda code is endorsed as Seamwork.
 
@@ -150,3 +150,19 @@ The repository rename occurred only after the charter, C++23 study surface, lega
 - [x] Introduce the first intentional `seamwork::` study surface (#23).
 - [x] Make Seamwork the default build/CI path and legacy libcoda explicitly opt-in (#28/#29).
 - [x] Rename the GitHub repository to `ryjen/seamwork` after the active surface reflects the new identity.
+
+## Legacy graph retirement and reproducible source pins (#34)
+
+The historical aggregate Git tree at `39bfd1f0fcc33b677c137148b1e90ed847fe5a82` referenced the following exact submodule snapshots before the retirement. These references retain lineage without copying potentially insecure, obsolete, or differently licensed code into current Seamwork.
+
+| Historic path | Canonical historical repository | Commit | Decision |
+| --- | --- | --- | --- |
+| `src/db` | [`ryjen/libcoda-db`](https://github.com/ryjen/libcoda-db) | `e1aa3f6f32aa7b3d875cd3182d19ff60dc359b71` | ARCHIVE — GPL-3.0; do not silently fold into MIT repository |
+| `src/dice` | [`ryjen/libcoda-dice`](https://github.com/ryjen/libcoda-dice) | `4802a244a71186991057a3c71ce33a783c7b6277` | ABSORB selectively — C++23 randomness study is the active successor |
+| `src/format` | [`ryjen/libcoda-format`](https://github.com/ryjen/libcoda-format) | `ed9e69323d8364b5f71bd6aae097637db608f2df` | ARCHIVE — parser/fuzz/test evidence |
+| `src/net` | [`ryjen/libcoda-net`](https://github.com/ryjen/libcoda-net) | `5fd99d81f9c22bb9fa7f7de6a7ec8e2fb9ad5a43` | ARCHIVE — transport/TLS threat and test evidence |
+| `cmake` | [`ryjen/cmake`](https://github.com/ryjen/cmake) | `84abe758c23959b8bff1a031b13c026376dcd4b5` | Retire unneeded build helpers |
+
+The root `src/`, `tests/`, legacy `package.json`, and submodule metadata are historical only; none are current supported Seamwork products. Git history also preserves retired `json`, `log`, `math`, `string`, `terminal`, and `thread` experiments.
+
+Reproduce legacy builds only by checking out an aggregate commit before #34 and initializing *its pinned* submodules. Do not interpret that ability as a supported or security-maintained release. The legacy aggregate and its generated/API reference material stay accessible through source history and independently archived repositories, not as default CI jobs. Component README redirects should remain available. GitHub archive settings and repository topic/description changes are administrative follow-ups, not reasons to retain old build code.
