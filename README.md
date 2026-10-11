@@ -89,6 +89,8 @@ For selected outcomes, promotion decisions, coverage gaps, and the evidence-back
 - [Percent decoding](studies/percent-decoding/README.md) — replaces unchecked `%HH` lookahead with bounds-first ASCII hex validation, typed malformed-input errors, and explicit `+` policy.
 - [Structured delayed work](studies/structured-delayed-work/README.md) — replaces detached delayed threads with move-only `std::jthread` ownership, strongly typed duration, and cooperative stop semantics.
 
+- [Bounded SPSC queue](studies/spsc-queue/README.md) — studies one fixed-capacity, non-blocking producer/consumer contract after the same sequence-counter logic appeared twice in a real external realtime-DSP consumer.
+
 Studies are evidence and design work first. They are not automatically promoted into reusable Seamwork components.
 
 ## Promoted components
