@@ -4,7 +4,12 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#if __has_include(<scope>)
 #include <scope>
+#define SEAMWORK_TRANSACTION_HAS_STD_SCOPE_EXIT 1
+#else
+#define SEAMWORK_TRANSACTION_HAS_STD_SCOPE_EXIT 0
+#endif
 #include <span>
 #include <utility>
 
@@ -274,6 +279,10 @@ private:
     bool successful_{};
 };
 
+inline constexpr bool std_scope_exit_available =
+    SEAMWORK_TRANSACTION_HAS_STD_SCOPE_EXIT != 0;
+
+#if SEAMWORK_TRANSACTION_HAS_STD_SCOPE_EXIT
 [[nodiscard]] inline auto run_with_scope_exit(fake_backend& backend)
     -> std::expected<void, transaction_error>
 {
@@ -297,7 +306,10 @@ private:
     rollback.release();
     return {};
 }
+#endif
 
 } // namespace alternatives
 
 } // namespace seamwork::studies::transaction_lifetime
+
+#undef SEAMWORK_TRANSACTION_HAS_STD_SCOPE_EXIT
