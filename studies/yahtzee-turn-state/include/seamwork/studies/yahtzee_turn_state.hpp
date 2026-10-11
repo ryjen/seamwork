@@ -1,36 +1,138 @@
 #pragma once
 
 #include <array>
-#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
-#include <type_traits>
+#include <utility>
 #include <variant>
 
 namespace seamwork::studies::yahtzee_turn {
 
 inline constexpr std::size_t dice_per_hand = 5;
-inline constexpr unsigned max_rolls = 3;
 
 using hold_mask = std::array<bool, dice_per_hand>;
 
-struct awaiting_roll {
-    unsigned rolls_taken{};
-    hold_mask held{};
+enum class prior_roll_count : std::uint8_t {
+    zero = 0,
+    one = 1,
+    two = 2,
 };
 
-struct choosing_dice {
-    unsigned rolls_taken{};
-    hold_mask held{};
+enum class choice_roll_count : std::uint8_t {
+    one = 1,
+    two = 2,
 };
 
-struct must_score {
-    hold_mask held{};
+enum class completed_roll_count : std::uint8_t {
+    one = 1,
+    two = 2,
+    three = 3,
 };
 
-struct completed {
-    unsigned rolls_taken{};
+[[nodiscard]] constexpr auto value(prior_roll_count count) noexcept -> unsigned
+{
+    return static_cast<unsigned>(std::to_underlying(count));
+}
+
+[[nodiscard]] constexpr auto value(choice_roll_count count) noexcept -> unsigned
+{
+    return static_cast<unsigned>(std::to_underlying(count));
+}
+
+[[nodiscard]] constexpr auto value(completed_roll_count count) noexcept -> unsigned
+{
+    return static_cast<unsigned>(std::to_underlying(count));
+}
+
+class awaiting_roll
+{
+public:
+    constexpr explicit awaiting_roll(
+        prior_roll_count rolls_taken = prior_roll_count::zero,
+        hold_mask held = {}
+    ) noexcept
+        : rolls_taken_(rolls_taken), held_(held)
+    {
+    }
+
+    [[nodiscard]] constexpr auto rolls_taken() const noexcept -> prior_roll_count
+    {
+        return rolls_taken_;
+    }
+
+    [[nodiscard]] constexpr auto held() const noexcept -> const hold_mask&
+    {
+        return held_;
+    }
+
+private:
+    prior_roll_count rolls_taken_;
+    hold_mask held_;
+};
+
+class choosing_dice
+{
+public:
+    constexpr explicit choosing_dice(choice_roll_count rolls_taken, hold_mask held = {}) noexcept
+        : rolls_taken_(rolls_taken), held_(held)
+    {
+    }
+
+    [[nodiscard]] constexpr auto rolls_taken() const noexcept -> choice_roll_count
+    {
+        return rolls_taken_;
+    }
+
+    [[nodiscard]] constexpr auto held() const noexcept -> const hold_mask&
+    {
+        return held_;
+    }
+
+    [[nodiscard]] constexpr auto with_toggled_hold(std::size_t index) const -> choosing_dice
+    {
+        auto next = *this;
+        next.held_[index] = !next.held_[index];
+        return next;
+    }
+
+private:
+    choice_roll_count rolls_taken_;
+    hold_mask held_;
+};
+
+class must_score
+{
+public:
+    constexpr explicit must_score(hold_mask held = {}) noexcept
+        : held_(held)
+    {
+    }
+
+    [[nodiscard]] constexpr auto held() const noexcept -> const hold_mask&
+    {
+        return held_;
+    }
+
+private:
+    hold_mask held_;
+};
+
+class completed
+{
+public:
+    constexpr explicit completed(completed_roll_count rolls_taken) noexcept
+        : rolls_taken_(rolls_taken)
+    {
+    }
+
+    [[nodiscard]] constexpr auto rolls_taken() const noexcept -> completed_roll_count
+    {
+        return rolls_taken_;
+    }
+
+private:
+    completed_roll_count rolls_taken_;
 };
 
 using turn_state = std::variant<awaiting_roll, choosing_dice, must_score, completed>;
@@ -66,27 +168,37 @@ using transition_result = std::expected<turn_state, transition_error>;
 
 [[nodiscard]] constexpr auto roll_completed(const awaiting_roll& current) -> turn_state
 {
-    const auto completed_rolls = current.rolls_taken + 1;
-    if (completed_rolls >= max_rolls) {
-        return must_score{current.held};
+    switch (current.rolls_taken()) {
+    case prior_roll_count::zero:
+        return choosing_dice{choice_roll_count::one, current.held()};
+    case prior_roll_count::one:
+        return choosing_dice{choice_roll_count::two, current.held()};
+    case prior_roll_count::two:
+        return must_score{current.held()};
     }
 
-    return choosing_dice{completed_rolls, current.held};
+    std::unreachable();
 }
 
 [[nodiscard]] constexpr auto reroll(const choosing_dice& current) -> turn_state
 {
-    return awaiting_roll{current.rolls_taken, current.held};
+    const auto prior = current.rolls_taken() == choice_roll_count::one
+        ? prior_roll_count::one
+        : prior_roll_count::two;
+    return awaiting_roll{prior, current.held()};
 }
 
 [[nodiscard]] constexpr auto score(const choosing_dice& current) -> turn_state
 {
-    return completed{current.rolls_taken};
+    const auto completed_rolls = current.rolls_taken() == choice_roll_count::one
+        ? completed_roll_count::one
+        : completed_roll_count::two;
+    return completed{completed_rolls};
 }
 
 [[nodiscard]] constexpr auto score(const must_score&) -> turn_state
 {
-    return completed{max_rolls};
+    return completed{completed_roll_count::three};
 }
 
 [[nodiscard]] constexpr auto with_toggled_hold(
@@ -101,9 +213,7 @@ using transition_result = std::expected<turn_state, transition_error>;
         }};
     }
 
-    auto next = current;
-    next.held[index] = !next.held[index];
-    return next;
+    return current.with_toggled_hold(index);
 }
 
 template <class... Visitors>
