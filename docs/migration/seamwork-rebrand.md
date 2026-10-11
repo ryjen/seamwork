@@ -41,7 +41,7 @@ seamwork/
 │   └── dependency-inversion/
 ├── components/
 ├── examples/
-│   └── yahtzee/
+│   └── yahtsee/
 ├── benchmarks/
 └── tests/
 ```
@@ -66,8 +66,8 @@ The first disposition review is complete. These decisions determine what may rec
 
 | Legacy area | Final disposition | Rationale / preserved evidence | Follow-up |
 | --- | --- | --- | --- |
-| Yahtzee | **REWORK** (preserve lineage) | It is the strongest real historical consumer and a compact domain for interface studies. The old C++ application remains baseline evidence rather than a port target. | Continue focused C++23 studies; PR #23 established the randomness seam. |
-| `libcoda-dice` | **ABSORB** | Generic dice and Yahtzee-specific behavior were already mixed. The useful randomness/domain problem belongs with the Yahtzee study, not an independent library. | Preserve history; migrate only behavior required by studies; retire the independent library when references are removed. |
+| Yahtsee | **REWORK** (preserve lineage) | It is the strongest real historical consumer and a compact domain for interface studies. The old C++ application remains baseline evidence rather than a port target. | Continue focused C++23 studies; PR #23 established the randomness seam. |
+| `libcoda-dice` | **ABSORB** | Generic dice and Yahtsee-specific behavior were already mixed. The useful randomness/domain problem belongs with the Yahtsee study, not an independent library. | Preserve history; migrate only behavior required by studies; retire the independent library when references are removed. |
 | `libcoda-format` | **ARCHIVE** | C++23 `std::format` removes the main product justification. Its deterministic parser tests, fuzzing, sanitizer work, and bounded-input lessons remain valuable evidence. | Keep security/testing artifacts as reference; do not promote another formatter unless a study identifies a gap in standard/mature facilities. |
 | `libcoda-db` | **ARCHIVE** | Adapter, transaction, URI, error, and backend-contract work is useful architectural source material, but Seamwork has no current consumer justifying a general DB abstraction. | Mine focused studies only when a real consumer needs them; preserve threat model and deterministic backend-test lessons. |
 | `libcoda-net` | **ARCHIVE** | Transport/TLS/protocol boundaries are rich study material, but a broad networking library carries a large security and maintenance surface without a current Seamwork consumer. | Preserve threat model/test-boundary evidence; create future narrow studies from concrete consumers rather than maintain the library. |
@@ -97,12 +97,12 @@ The first pass found several useful constraints:
 
 - `ryjen/yahtsee` is archived and its default branch is Go.
 - The recoverable `original` branch is C++14 and depends directly on old logging, string, dice, network, HTTP, async, terminal/libcaca, archive, and UPnP surfaces.
-- The original Yahtzee test tree is effectively empty, so existing behavior must be characterized rather than assumed.
+- The original Yahtsee test tree is effectively empty, so existing behavior must be characterized rather than assumed.
 - `libcoda-dice` already mixes generic dice behavior with a `yaht` subtree, reinforcing that the historical library boundary was not especially strong.
 - `libcoda-format` has some of the strongest existing modernization evidence (deterministic tests, fuzzing, target-local coverage), which is worth preserving even if the formatter itself is not promoted.
 - DB and network components have useful adapter/security/test boundaries, but their scope is much broader than needed for an initial Seamwork example.
 
-The first concrete study is tracked in #22: rebuild the smallest useful Yahtzee dice/randomness seam in C++23 and compare dependency-inversion mechanisms against a real consumer.
+The first concrete study is tracked in #22: rebuild the smallest useful Yahtsee dice/randomness seam in C++23 and compare dependency-inversion mechanisms against a real consumer.
 
 ## C++23 migration
 
@@ -145,7 +145,7 @@ The repository rename occurred only after the charter, C++23 study surface, lega
 - [x] Establish and validate the root C++23 build baseline.
 - [x] Complete legacy component disposition review (#24).
 - [x] Reconcile the existing multi-repository ADR with the new target topology.
-- [x] Rebuild a focused Yahtzee slice as the first practical reference application (#22).
+- [x] Rebuild a focused Yahtsee slice as the first practical reference application (#22).
 - [x] Complete one end-to-end refinement study.
 - [x] Introduce the first intentional `seamwork::` study surface (#23).
 - [x] Make Seamwork the default build/CI path and legacy libcoda explicitly opt-in (#28/#29).

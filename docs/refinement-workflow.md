@@ -105,7 +105,7 @@ Promotion is not required for a successful study.
 
 ## Example: dependency inversion
 
-A study using the Yahtzee random source might compare:
+A study using the Yahtsee random source might compare:
 
 ```text
 concrete PRNG dependency

@@ -55,7 +55,7 @@ Historical components retain their original language requirements in their indep
 
 ## Practical consumers
 
-The original C++ Yahtzee implementation survives on the archived `ryjen/yahtsee` repository's `original` branch. It is used as historical baseline evidence, not imported wholesale.
+The original C++ Yahtsee implementation survives on the archived `ryjen/yahtsee` repository's `original` branch. It is used as historical baseline evidence, not imported wholesale.
 
 A typical Seamwork study moves through:
 
@@ -74,15 +74,15 @@ Promotion is optional. Demonstrating why an abstraction should not exist is a va
 
 ## Current studies
 
-- [Yahtzee randomness seam](studies/yahtzee-randomness/README.md) — compares a semantic callable/concept, runtime interface, type erasure, and direct URBG dependency against a focused C++23 consumer.
-- [Yahtzee `std::expected` boundary](studies/yahtzee-expected/README.md) — compares exceptions, `std::optional`, and `std::expected` for recoverable parsing/validation, then removes the error channel once domain invariants are established.
-- [Yahtzee typed turn state](studies/yahtzee-turn-state/README.md) — compares mutable flag-driven state with a closed `std::variant` of state-specific values and explicit transition errors.
+- [Yahtsee randomness seam](studies/yahtsee-randomness/README.md) — compares a semantic callable/concept, runtime interface, type erasure, and direct URBG dependency against a focused C++23 consumer.
+- [Yahtsee `std::expected` boundary](studies/yahtsee-expected/README.md) — compares exceptions, `std::optional`, and `std::expected` for recoverable parsing/validation, then removes the error channel once domain invariants are established.
+- [Yahtsee typed turn state](studies/yahtsee-turn-state/README.md) — compares mutable flag-driven state with a closed `std::variant` of state-specific values and explicit transition errors.
 
 Studies are evidence and design work first. They are not automatically promoted into reusable Seamwork components.
 
 ## Integrated examples
 
-- [Composed Yahtzee turn](examples/yahtzee-turn/README.md) — combines the randomness, typed turn-state, and scoring/error-boundary studies in one deterministic consumer and records the integration friction instead of hiding it behind new abstractions.
+- [Composed Yahtsee turn](examples/yahtsee-turn/README.md) — combines the randomness, typed turn-state, and scoring/error-boundary studies in one deterministic consumer and records the integration friction instead of hiding it behind new abstractions.
 
 ## Security
 

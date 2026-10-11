@@ -1,1 +1,1 @@
-add_subdirectory(yahtzee-turn)
+add_subdirectory(yahtsee-turn)
