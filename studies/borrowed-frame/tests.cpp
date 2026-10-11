@@ -5,12 +5,25 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
 
 #include <seamwork/studies/borrowed_frame.hpp>
 
 namespace sw = seamwork::studies::borrowed_frame;
 
 namespace {
+
+template <class Range>
+concept parseable_range = requires(Range&& range) {
+    sw::parse(std::forward<Range>(range));
+};
+
+static_assert(parseable_range<std::array<std::byte, 2>&>);
+static_assert(parseable_range<std::vector<std::byte>&>);
+static_assert(parseable_range<std::span<const std::byte>>);
+static_assert(!parseable_range<std::array<std::byte, 2>>);
+static_assert(!parseable_range<std::vector<std::byte>>);
 
 void require(bool condition, std::string_view message)
 {
