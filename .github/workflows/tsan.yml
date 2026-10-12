@@ -36,7 +36,7 @@ jobs:
           nix develop --command env \
             CC=clang \
             CXX=clang++ \
-            CXXFLAGS="-fsanitize=thread -fno-omit-frame-pointer" \
+            CXXFLAGS="-fsanitize=thread -fno-omit-frame-pointer -DSEAMWORK_SPSC_TRACK_ALLOCATIONS=0" \
             LDFLAGS="-fsanitize=thread" \
             cmake -S . -B build/tsan -G Ninja \
               -DCMAKE_BUILD_TYPE=RelWithDebInfo \
