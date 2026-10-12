@@ -129,3 +129,5 @@ The dedicated `.github/workflows/tsan.yml` workflow is intentionally separate fr
 - unrelated Seamwork pull requests do not pay the sanitizer cost.
 
 This adds dynamic data-race evidence without changing the queue contract or promoting it into a component.
+
+The normal test binary still performs its explicit no-allocation check by temporarily replacing global `new/delete`. The TSan build disables only that test instrumentation because ThreadSanitizer owns the same allocator-interception symbols. Queue behavior tests and the concurrent stress case still run under TSan.
