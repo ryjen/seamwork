@@ -30,7 +30,17 @@ See:
 - [Design principles](docs/principles.md)
 - [Refinement workflow](docs/refinement-workflow.md)
 - [Study catalog and evidence coverage](docs/study-catalog.md)
+- [Changelog](CHANGELOG.md)
+- [Seamwork 0.1.0 release notes](docs/releases/0.1.0.md)
 - [Re-charter and migration plan](docs/migration/seamwork-rebrand.md)
+
+## Release line
+
+The active project version is **0.1.0**.
+
+Seamwork release tags use the `seamwork-` prefix so the re-chartered version line is clearly distinct from historical libcoda/libarg3 tags such as the preserved 2015 `0.5.1` prerelease.
+
+See the [changelog](CHANGELOG.md) and [0.1.0 release notes](docs/releases/0.1.0.md).
 
 ## Architecture
 
