@@ -1,0 +1,55 @@
+name: SPSC ThreadSanitizer
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "studies/spsc-queue/**"
+      - ".github/workflows/tsan.yml"
+      - "CMakeLists.txt"
+      - "studies/CMakeLists.txt"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tsan-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  spsc-tsan:
+    name: SPSC queue (Clang + TSan)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+
+      - name: Configure ThreadSanitizer build
+        run: |
+          nix develop --command env \
+            CC=clang \
+            CXX=clang++ \
+            CXXFLAGS="-fsanitize=thread -fno-omit-frame-pointer" \
+            LDFLAGS="-fsanitize=thread" \
+            cmake -S . -B build/tsan -G Ninja \
+              -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DSEAMWORK_BUILD_TESTS=OFF \
+              -DSEAMWORK_BUILD_EXAMPLES=OFF
+
+      - name: Build SPSC test
+        run: |
+          nix develop --command cmake --build build/tsan --parallel 2 --target \
+            seamwork_spsc_queue_test
+
+      - name: Run under ThreadSanitizer
+        env:
+          TSAN_OPTIONS: halt_on_error=1
+        run: |
+          ./build/tsan/studies/spsc-queue/seamwork_spsc_queue_test
