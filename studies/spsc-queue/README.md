@@ -115,3 +115,17 @@ Before promotion, prefer either:
 ## Promotion status
 
 **Study only.**
+
+
+## ThreadSanitizer qualification
+
+The queue's correctness claim depends on cross-thread publication, so concurrent stress tests are additionally qualified under Clang ThreadSanitizer.
+
+The dedicated `.github/workflows/tsan.yml` workflow is intentionally separate from normal CI:
+
+- it runs manually or when the SPSC study / TSan workflow changes;
+- it builds only `seamwork_spsc_queue_test`;
+- it enables `-fsanitize=thread`;
+- unrelated Seamwork pull requests do not pay the sanitizer cost.
+
+This adds dynamic data-race evidence without changing the queue contract or promoting it into a component.
