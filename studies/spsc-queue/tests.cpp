@@ -17,10 +17,16 @@
 
 namespace sw = seamwork::studies::spsc_queue;
 
+#ifndef SEAMWORK_SPSC_TRACK_ALLOCATIONS
+#define SEAMWORK_SPSC_TRACK_ALLOCATIONS 1
+#endif
+
 namespace {
 
+#if SEAMWORK_SPSC_TRACK_ALLOCATIONS
 std::atomic_bool track_allocations{false};
 std::atomic_size_t allocation_count{0};
+#endif
 
 void require(bool condition, std::string_view message)
 {
@@ -126,6 +132,7 @@ void test_move_only_payload()
     require(popped->value == 41, "move-only payload value should survive");
 }
 
+#if SEAMWORK_SPSC_TRACK_ALLOCATIONS
 void test_queue_operations_allocate_nothing()
 {
     sw::queue<observation, 8> queue;
@@ -150,6 +157,7 @@ void test_queue_operations_allocate_nothing()
         "queue push/pop should not allocate"
     );
 }
+#endif
 
 void test_sequence_wraparound_with_small_counter()
 {
@@ -238,6 +246,7 @@ void test_concurrent_spsc_ordering()
 
 } // namespace
 
+#if SEAMWORK_SPSC_TRACK_ALLOCATIONS
 void* operator new(std::size_t size)
 {
     if (track_allocations.load(std::memory_order_relaxed)) {
@@ -275,13 +284,17 @@ void operator delete[](void* memory, std::size_t) noexcept
     ::operator delete(memory);
 }
 
+#endif
+
 int main()
 {
     try {
         test_fifo_full_empty_and_refill();
         test_second_consumer_shape();
         test_move_only_payload();
+#if SEAMWORK_SPSC_TRACK_ALLOCATIONS
         test_queue_operations_allocate_nothing();
+#endif
         test_sequence_wraparound_with_small_counter();
         test_concurrent_spsc_ordering();
     } catch (const std::exception& error) {
