@@ -38,6 +38,9 @@ if(SEAMWORK_BUILD_TESTS)
         NAME seamwork_structured_delayed_work
         COMMAND seamwork_structured_delayed_work_test
     )
+    set_tests_properties(
+        seamwork_structured_delayed_work PROPERTIES TIMEOUT 30
+    )
 endif()
 
 add_custom_target(seamwork_structured_delayed_work_check
