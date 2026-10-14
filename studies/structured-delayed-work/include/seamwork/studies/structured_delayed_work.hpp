@@ -35,25 +35,19 @@ public:
                 std::stop_token stop
             ) mutable noexcept {
                 std::mutex mutex;
-                std::condition_variable wake;
+                std::condition_variable_any wake;
                 std::unique_lock lock{mutex};
 
-                std::stop_callback notify_on_stop{
-                    stop,
-                    [&wake]() noexcept {
-                        wake.notify_all();
-                    }
-                };
-
-                const auto cancelled = wake.wait_for(
+                // The stop-aware wait registers cancellation without a gap
+                // between checking the token and entering the wait.
+                static_cast<void>(wake.wait_for(
                     lock,
+                    stop,
                     delay,
-                    [&stop]() noexcept {
-                        return stop.stop_requested();
-                    }
-                );
+                    []() noexcept { return false; }
+                ));
 
-                if (cancelled || stop.stop_requested()) {
+                if (stop.stop_requested()) {
                     return;
                 }
 

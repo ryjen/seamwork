@@ -37,7 +37,7 @@ This does not make arbitrary captured references safe. If a callback captures ex
 
 A plain `sleep_for` would make destruction wait for the original deadline even after cancellation.
 
-The worker instead waits on a local condition variable. A `std::stop_callback` notifies that wait when the jthread's stop source is requested.
+The worker instead uses the stop-token-aware `std::condition_variable_any::wait_for` overload. This keeps stop registration and wakeup coupled to the wait operation, avoiding a lost notification if a stop request races with entering the wait.
 
 That lets a one-hour pending delay be cancelled immediately in tests without sleeping for wall-clock time.
 

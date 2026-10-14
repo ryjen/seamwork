@@ -83,6 +83,34 @@ void test_cancellation_before_deadline_prevents_callback()
     require(task.stop_requested(), "owner should expose requested stop state");
 }
 
+void test_stop_racing_with_wait_setup()
+{
+    std::atomic<unsigned> called{0};
+
+    // Race immediate cancellation with worker setup, then also give the
+    // worker a chance to enter its wait on alternating iterations.
+    for (int attempt = 0; attempt < 256; ++attempt) {
+        auto task = sw::delayed_task::start(
+            std::chrono::hours{1},
+            [&called](std::stop_token) noexcept {
+                called.fetch_add(1, std::memory_order_relaxed);
+            }
+        );
+
+        if (attempt % 2 != 0) {
+            std::this_thread::yield();
+        }
+
+        require(task.request_stop(), "pending task should accept a stop request");
+        task.join();
+    }
+
+    require(
+        called.load(std::memory_order_relaxed) == 0,
+        "a cancelled long-delay task must never execute"
+    );
+}
+
 void test_destruction_cancels_and_joins_pending_work()
 {
     std::atomic_bool called{false};
@@ -161,6 +189,7 @@ int main()
     try {
         test_zero_delay_executes_owned_callback();
         test_cancellation_before_deadline_prevents_callback();
+        test_stop_racing_with_wait_setup();
         test_destruction_cancels_and_joins_pending_work();
         test_move_transfers_worker_ownership();
         test_running_callback_observes_stop_token();
