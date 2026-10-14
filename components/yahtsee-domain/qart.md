@@ -57,6 +57,8 @@ seamwork::yahtsee::make_hand(std::span<const int>)
 The validated `hand` then flows directly into scoring.
 
 Random generation produces typed `face` values and constructs a typed `hand` directly.
+The public constructor independently validates the enum representations,
+so even a malformed custom face source cannot bypass the hand invariant.
 
 This creates one invariant owner rather than an unchecked bypass.
 

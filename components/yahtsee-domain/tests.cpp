@@ -34,6 +34,31 @@ void test_typed_hand_preserves_faces()
     require(domain::value(hand[2]) == 3U, "face value should expose domain ordinal");
 }
 
+void test_typed_hand_rejects_invalid_faces()
+{
+    for (const auto invalid : std::array{
+             static_cast<domain::face>(0),
+             static_cast<domain::face>(7),
+             static_cast<domain::face>(255),
+         }) {
+        bool rejected = false;
+        try {
+            const domain::hand bad{{
+                domain::face::one,
+                domain::face::two,
+                invalid,
+                domain::face::four,
+                domain::face::five,
+            }};
+            static_cast<void>(bad);
+        } catch (const std::invalid_argument&) {
+            rejected = true;
+        }
+
+        require(rejected, "typed hand should reject invalid enum representations");
+    }
+}
+
 void test_raw_hand_validation()
 {
     const std::array valid{1, 2, 3, 4, 5};
@@ -66,6 +91,7 @@ int main()
 {
     try {
         test_typed_hand_preserves_faces();
+        test_typed_hand_rejects_invalid_faces();
         test_raw_hand_validation();
     } catch (const std::exception& error) {
         std::cerr << "Yahtsee domain component failed: " << error.what() << '\n';

@@ -18,6 +18,11 @@ The component owns only stable domain facts:
 - raw integer validation into a typed hand;
 - typed validation errors.
 
+A directly constructed `hand(face_values)` also checks each enum value, including
+out-of-range values introduced through an explicit enum cast. Such programmer
+misuse throws `std::invalid_argument`; **raw input** should use
+`make_hand(std::span<const int>)`, which reports errors through `std::expected`.
+
 It deliberately does **not** own:
 
 - random generation;

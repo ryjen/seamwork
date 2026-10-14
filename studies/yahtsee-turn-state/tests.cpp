@@ -113,6 +113,55 @@ void test_invalid_die_index_is_distinct()
     require(result.error().index == sw::dice_per_hand, "error should retain rejected index");
 }
 
+void test_invalid_public_state_construction_is_rejected()
+{
+    for (const auto count : {0U, 3U, 255U}) {
+        if (count != 0U) {
+            bool rejected = false;
+            try {
+                static_cast<void>(sw::awaiting_roll{static_cast<sw::prior_roll_count>(count)});
+            } catch (const std::invalid_argument&) {
+                rejected = true;
+            }
+            require(rejected, "awaiting_roll must reject invalid count");
+        }
+    }
+
+    for (const auto count : {0U, 3U, 255U}) {
+        bool rejected = false;
+        try {
+            static_cast<void>(sw::choosing_dice{static_cast<sw::choice_roll_count>(count)});
+        } catch (const std::invalid_argument&) {
+            rejected = true;
+        }
+        require(rejected, "choosing_dice must reject invalid count");
+    }
+
+    for (const auto count : {0U, 4U, 255U}) {
+        bool rejected = false;
+        try {
+            static_cast<void>(sw::completed{static_cast<sw::completed_roll_count>(count)});
+        } catch (const std::invalid_argument&) {
+            rejected = true;
+        }
+        require(rejected, "completed must reject invalid count");
+    }
+}
+
+void test_direct_hold_access_rejects_invalid_index()
+{
+    bool rejected = false;
+    try {
+        static_cast<void>(
+            sw::choosing_dice{sw::choice_roll_count::one}
+                .with_toggled_hold(sw::dice_per_hand)
+        );
+    } catch (const std::out_of_range&) {
+        rejected = true;
+    }
+    require(rejected, "direct hold mutation must reject invalid index");
+}
+
 void test_completed_turn_rejects_more_commands()
 {
     auto state = step(sw::initial_turn(), sw::turn_action::roll_completed);
@@ -134,6 +183,8 @@ int main()
         test_scoring_can_end_turn_early();
         test_invalid_commands_are_explicit();
         test_invalid_die_index_is_distinct();
+        test_invalid_public_state_construction_is_rejected();
+        test_direct_hold_access_rejects_invalid_index();
         test_completed_turn_rejects_more_commands();
     } catch (const std::exception& error) {
         std::cerr << "yahtsee-turn-state study failed: " << error.what() << '\n';
