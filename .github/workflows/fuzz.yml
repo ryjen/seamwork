@@ -7,6 +7,10 @@ on:
       - "fuzz/**"
       - "studies/borrowed-frame/**"
       - "studies/percent-decoding/**"
+      - "studies/CMakeLists.txt"
+      - "components/CMakeLists.txt"
+      - "flake.nix"
+      - "flake.lock"
       - "CMakeLists.txt"
       - ".github/workflows/fuzz.yml"
 
