@@ -153,6 +153,8 @@ void test_move_transfers_rollback_ownership()
         auto first = std::move(*started);
         auto second = std::move(first);
 
+        // transaction_guard explicitly clears active_ via std::exchange on move.
+        // NOLINTNEXTLINE(bugprone-use-after-move)
         require(!first.active(), "moved-from guard should release lifecycle ownership");
         require(second.active(), "moved-to guard should own active transaction");
         require(second.commit().has_value(), "moved-to guard should commit");

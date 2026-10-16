@@ -125,6 +125,8 @@ void test_move_only_payload()
 
     move_only value{41};
     require(queue.try_push(std::move(value)), "move-only payload should push");
+    // The test-only move_only type defines a moved-from sentinel explicitly.
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     require(value.value == -1, "push should consume moved value");
 
     const auto popped = queue.try_pop();

@@ -57,8 +57,13 @@ The analysis script fails if the compilation database is missing, if clang-tidy
 cannot analyze a translation unit, or if an enabled diagnostic is emitted.
 The initial narrow gate checks Clang static-analyzer core and C++ analyses
 plus use-after-move; it intentionally avoids auto-formatting and broad
-style rewrites. Widen rules after reviewing baseline diagnostics, not by
-silently suppressing failures. The active Clang CI check is the gate;
+style rewrites. Initial baseline triage found three test-only observations
+of explicitly specified moved-from states: a test payload sentinel, a
+moved-from `std::jthread` owner, and a transaction guard's reset ownership
+flag. Each has an inline, check-specific `NOLINTNEXTLINE` explaining the
+contract. No production-code suppressions or global disabling were needed.
+Widen rules after reviewing new diagnostics, not by silently suppressing
+failures. The active Clang CI check is the gate;
 no new required-status context or runner is introduced.
 
 The script processes active default-build `.cpp` files under

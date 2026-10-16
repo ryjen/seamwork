@@ -145,6 +145,8 @@ void test_move_transfers_worker_ownership()
 
     auto second = std::move(first);
 
+    // delayed_task defines its moved-from state through std::jthread ownership.
+    // NOLINTNEXTLINE(bugprone-use-after-move,clang-analyzer-cplusplus.Move)
     require(!first.joinable(), "moved-from task should release worker ownership");
     require(second.joinable(), "moved-to task should own worker");
 
