@@ -1,0 +1,5 @@
+# Scope the first gate to correctness diagnostics, not formatting or naming.
+# Changes to this rule set require explicit review of any new diagnostics.
+Checks: '-*,clang-analyzer-core.*,clang-analyzer-cplusplus.*,bugprone-use-after-move'
+WarningsAsErrors: '*'
+HeaderFilterRegex: '(^|/)(components|studies|examples)/'

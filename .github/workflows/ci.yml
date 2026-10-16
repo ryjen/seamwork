@@ -56,3 +56,9 @@ jobs:
           CC: ${{ matrix.cc }}
           CXX: ${{ matrix.cxx }}
         run: nix develop --command ctest --preset release
+
+      # Keep analysis in the existing Clang CI check, so a diagnostic fails
+      # the same established gate without adding a redundant runner job.
+      - name: C++23 static analysis (Clang)
+        if: matrix.compiler == 'Clang'
+        run: nix develop --command ./scripts/check-static-analysis.sh build/release

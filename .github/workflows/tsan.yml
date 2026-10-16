@@ -5,6 +5,9 @@ on:
   pull_request:
     paths:
       - "studies/spsc-queue/**"
+      - "components/CMakeLists.txt"
+      - "flake.nix"
+      - "flake.lock"
       - ".github/workflows/tsan.yml"
       - "CMakeLists.txt"
       - "studies/CMakeLists.txt"
