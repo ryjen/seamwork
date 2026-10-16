@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <expected>
 #include <span>
+#include <stdexcept>
 #include <utility>
 
 namespace seamwork::yahtsee {
@@ -32,9 +33,15 @@ using face_values = std::array<face, dice_per_hand>;
 class hand
 {
 public:
-    constexpr explicit hand(face_values values) noexcept
+    constexpr explicit hand(face_values values)
         : values_(values)
     {
+        for (const auto side : values_) {
+            if (value(side) < static_cast<unsigned>(minimum_face)
+                || value(side) > static_cast<unsigned>(maximum_face)) {
+                throw std::invalid_argument{"Yahtsee hand contains an invalid face"};
+            }
+        }
     }
 
     [[nodiscard]] constexpr auto values() const noexcept -> const face_values&

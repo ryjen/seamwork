@@ -31,7 +31,12 @@ completed
 
 and stores exactly one of them in `std::variant`.
 
-Data belongs to the states where it has meaning. Roll counts are encoded with state-specific enum types, so a normal caller cannot construct a choice state with zero or three completed rolls. The forced-score state cannot represent a reroll permission flag at all.
+Data belongs to the states where it has meaning. Roll counts are encoded with state-specific enum types, and validated by the public state constructors, so even explicitly cast
+out-of-range enum representations cannot construct an invalid state. The forced-score state cannot represent a reroll permission flag at all.
+
+Invalid constructor arguments (programmer misuse) throw `std::invalid_argument`.
+Direct out-of-range hold access throws `std::out_of_range`; the
+`apply(...)` boundary instead returns a typed `die_out_of_range` error.
 
 The command/application boundary still accepts commands that may be invalid for the current state, so `apply(...)` returns `std::expected<turn_state, transition_error>`. Internal state representation and external command validity are separate concerns.
 

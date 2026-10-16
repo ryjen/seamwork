@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <stdexcept>
 #include <utility>
 #include <variant>
 
@@ -53,9 +54,12 @@ public:
     constexpr explicit awaiting_roll(
         prior_roll_count rolls_taken = prior_roll_count::zero,
         hold_mask held = {}
-    ) noexcept
+    )
         : rolls_taken_(rolls_taken), held_(held)
     {
+        if (value(rolls_taken_) > value(prior_roll_count::two)) {
+            throw std::invalid_argument{"awaiting_roll count must be 0, 1, or 2"};
+        }
     }
 
     [[nodiscard]] constexpr auto rolls_taken() const noexcept -> prior_roll_count
@@ -76,9 +80,13 @@ private:
 class choosing_dice
 {
 public:
-    constexpr explicit choosing_dice(choice_roll_count rolls_taken, hold_mask held = {}) noexcept
+    constexpr explicit choosing_dice(choice_roll_count rolls_taken, hold_mask held = {})
         : rolls_taken_(rolls_taken), held_(held)
     {
+        if (rolls_taken_ != choice_roll_count::one
+            && rolls_taken_ != choice_roll_count::two) {
+            throw std::invalid_argument{"choosing_dice count must be 1 or 2"};
+        }
     }
 
     [[nodiscard]] constexpr auto rolls_taken() const noexcept -> choice_roll_count
@@ -94,7 +102,7 @@ public:
     [[nodiscard]] constexpr auto with_toggled_hold(std::size_t index) const -> choosing_dice
     {
         auto next = *this;
-        next.held_[index] = !next.held_[index];
+        next.held_.at(index) = !next.held_.at(index);
         return next;
     }
 
@@ -123,9 +131,13 @@ private:
 class completed
 {
 public:
-    constexpr explicit completed(completed_roll_count rolls_taken) noexcept
+    constexpr explicit completed(completed_roll_count rolls_taken)
         : rolls_taken_(rolls_taken)
     {
+        if (value(rolls_taken_) < value(completed_roll_count::one)
+            || value(rolls_taken_) > value(completed_roll_count::three)) {
+            throw std::invalid_argument{"completed count must be 1, 2, or 3"};
+        }
     }
 
     [[nodiscard]] constexpr auto rolls_taken() const noexcept -> completed_roll_count

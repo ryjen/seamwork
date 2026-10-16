@@ -47,7 +47,7 @@ This separates two ideas:
 Benefits:
 
 - contradictory phase/flag combinations disappear;
-- state-specific roll-count enums exclude ordinary out-of-range lifecycle counts;
+- state-specific roll-count enums distinguish phases and constructors reject invalid enum representations;
 - state-specific data is visible in the type;
 - no heap allocation or shared ownership is needed;
 - transitions are deterministic value transformations;
